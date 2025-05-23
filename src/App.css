@@ -566,6 +566,39 @@ body {
   color: #666;
 }
 
+.file-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.file-list-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+}
+
+.btn-danger {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #d32f2f;
+}
+
+.btn-danger:disabled {
+  background-color: #ffcdd2;
+  color: #b71c1c;
+  cursor: not-allowed;
+}
+
+
 
 
 

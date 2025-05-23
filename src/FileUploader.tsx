@@ -501,6 +501,21 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     }
   };
 
+  const handleClearAllFiles = () => {
+    // Revoke all object URLs to prevent memory leaks
+    files.forEach(file => {
+      if (file.url) {
+        URL.revokeObjectURL(file.url);
+      }
+    });
+    
+    // Clear the files array
+    setFiles([]);
+    
+    // Clear the selected model
+    setSelectedModel(null);
+  };
+
   // Function to truncate file name with ellipsis if too long
   const truncateFileName = (fileName: string, maxLength: number = 20): string => {
     if (fileName.length <= maxLength) return fileName;
@@ -556,13 +571,22 @@ export default function FileUploader({ settings }: FileUploaderProps) {
             <div className="file-list">
               <div className="file-list-header">
                 <h3>Files:</h3>
-                <button 
-                  className="btn btn-small"
-                  onClick={handleDownloadZip}
-                  disabled={isZipping || files.filter(f => f.status === "completed").length === 0}
-                >
-                  {isZipping ? "Creating Zip..." : "Download as Zip"}
-                </button>
+                <div className="file-list-actions">
+                  <button 
+                    className="btn btn-small btn-danger"
+                    onClick={handleClearAllFiles}
+                    disabled={files.length === 0}
+                  >
+                    Clear All
+                  </button>
+                  <button 
+                    className="btn btn-small"
+                    onClick={handleDownloadZip}
+                    disabled={isZipping || files.filter(f => f.status === "completed").length === 0}
+                  >
+                    {isZipping ? "Creating Zip..." : "Download as Zip"}
+                  </button>
+                </div>
               </div>
               <ul>
                 {files.map((file, index) => (
@@ -633,6 +657,8 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     </div>
   );
 }
+
+
 
 
 
