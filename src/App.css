@@ -1,66 +1,180 @@
+/* Make the app fill the full screen */
 #root {
   max-width: 100%;
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 0;
+  padding: 0;
   text-align: center;
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-.file-uploader {
-  margin-top: 2rem;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.file-list {
-  margin-top: 1rem;
-}
-
-.file-item {
+  height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  border-radius: 4px;
 }
 
-.status-pending {
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 60px); /* Subtract header height */
+  gap: 20px;
+  padding: 0 20px 20px 20px;
+  box-sizing: border-box;
+  padding-right: 320px; /* Add extra padding on the right */
+}
+
+/* Header styles */
+.app-header {
+  display: flex;
+  justify-content: flex-end; /* Changed from space-between to flex-end */
+  align-items: center;
   background-color: #f0f0f0;
+  padding: 0 20px;
+  height: 60px;
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  box-sizing: border-box;
+  padding-right: 320px; /* Add extra padding on the right to account for settings panel */
 }
 
-.status-processing {
-  background-color: #fff8e1;
+.header-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
-.status-completed {
-  background-color: #e8f5e9;
+/* Settings panel styles */
+.settings-panel {
+  position: fixed; /* Change to fixed to ensure it stays in place */
+  top: 60px;
+  right: 0;
+  width: 300px;
+  background-color: #ffffff;
+  border-left: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 20px;
+  z-index: 100;
+  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  height: calc(100vh - 60px);
+  transform: translateX(0); /* Always visible */
 }
 
-.status-error {
-  background-color: #ffebee;
+.settings-panel h3 {
+  margin-top: 0;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  color: #333;
 }
 
-.file-name {
+.setting-group {
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+.setting-group-title {
   font-weight: bold;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  color: #333;
 }
 
-.file-status {
-  margin-top: 0.25rem;
+.setting-group-title input {
+  margin-right: 10px;
+}
+
+.setting-options {
+  margin-left: 25px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  border-left: 2px solid #ddd;
+}
+
+.setting-option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.setting-option:last-child {
+  margin-bottom: 0;
+}
+
+.setting-option input {
+  margin-right: 10px;
+}
+
+/* Always show the app container with settings */
+.app-container.with-settings {
+  padding-right: 320px;
+}
+
+/* File uploader container */
+.file-uploader-container {
+  flex: 1;
+  max-width: 400px;
+  overflow-y: auto;
+  height: 100%;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  padding: 20px;
+  border: 1px solid #ddd;
+}
+
+/* Model viewer container */
+.model-viewer-container {
+  flex: 2;
+  height: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  position: relative;
+  margin-right: 0; /* Ensure no extra margin */
+}
+
+.model-viewer {
+  width: 100%;
+  height: 100%;
+}
+
+.model-viewer canvas {
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+/* Button styles */
+.btn {
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
   font-size: 0.9rem;
+  transition: background-color 0.2s;
 }
 
-.file-result {
-  margin-top: 0.25rem;
-  font-size: 0.8rem;
-  color: #666;
+.btn:hover {
+  background-color: #d0d0d0;
+}
+
+.btn-primary {
+  background-color: #646cff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #535bf2;
 }
 
 /* Add these styles for the new layout */
@@ -80,9 +194,9 @@
 .model-viewer-container {
   flex: 2;
   min-height: 500px;
-  border: 1px solid #444;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: #333;
+  background-color: #f9f9f9;
   position: relative;
 }
 
@@ -108,14 +222,18 @@
 .file-item {
   cursor: pointer;
   transition: background-color 0.2s;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
 }
 
 .file-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(100, 108, 255, 0.1);
 }
 
 .file-item.selected {
   border-left: 3px solid #646cff;
+  background-color: rgba(100, 108, 255, 0.05);
 }
 
 .file-uploader.dragging {
@@ -125,7 +243,7 @@
 
 .upload-area {
   padding: 20px;
-  border: 1px dashed #666;
+  border: 1px dashed #aaa;
   border-radius: 4px;
   margin-bottom: 20px;
 }
@@ -153,5 +271,58 @@
   color: #888;
   margin-top: 10px;
 }
+
+.file-list {
+  text-align: left;
+}
+
+.file-list h3 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.file-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.file-name {
+  font-weight: bold;
+  display: block;
+  color: #333;
+}
+
+.file-status {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.status-pending .file-status {
+  color: #888;
+}
+
+.status-processing .file-status {
+  color: #646cff;
+}
+
+.status-completed .file-status {
+  color: #4caf50;
+}
+
+.status-error .file-status {
+  color: #f44336;
+}
+
+.file-result {
+  font-size: 0.7rem;
+  color: #888;
+  margin-top: 4px;
+}
+
+
+
+
 
 

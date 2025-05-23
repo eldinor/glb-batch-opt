@@ -1,8 +1,9 @@
 import { ImageUtils, WebIO, type Transform } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
-import { dedup, type DedupOptions } from "@gltf-transform/functions";
+import { dedup, textureCompress } from "@gltf-transform/functions";
 import { MeshoptEncoder, MeshoptDecoder } from "meshoptimizer";
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
+import JSZip from "jszip";
 import ModelViewer from "./ModelViewer";
 
 interface FileProgress {
@@ -13,21 +14,41 @@ interface FileProgress {
   url?: string;
 }
 
-export default function FileUploader() {
+interface OptimizationSettings {
+  enableDedup: boolean;
+  dedupOptions: {
+    accessors: boolean;
+    meshes: boolean;
+    materials: boolean;
+  };
+  enableTextureCompression: boolean;
+  textureCompressionOptions: {
+    format: 'webp' | 'jpeg' | 'png';
+    quality: 'auto' | number; // Changed to allow 'auto' or a number
+    resize: [number, number] | null;
+  };
+}
+
+interface FileUploaderProps {
+  settings: OptimizationSettings;
+}
+
+export default function FileUploader({ settings }: FileUploaderProps) {
   const [files, setFiles] = useState<FileProgress[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [isZipping, setIsZipping] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Push transform functions to transformsArray
-  const transformsArray: ((_options?: DedupOptions) => Transform)[] = [];
 
   // Set the first completed file as selected model when available
   useEffect(() => {
-    const completedFile = files.find(file => file.status === "completed" && file.url);
-    if (completedFile && !selectedModel) {
-      setSelectedModel(completedFile.url);
+    // Only set the selected model if there isn't one already
+    if (!selectedModel) {
+      const completedFile = files.find(file => file.status === "completed" && file.url);
+      if (completedFile && completedFile.url) {
+        setSelectedModel(completedFile.url);
+      }
     }
   }, [files, selectedModel]);
 
@@ -37,43 +58,60 @@ export default function FileUploader() {
 
     if (glbFiles.length === 0) return;
 
+    // Create new file entries
     const newFiles = glbFiles.map((file) => ({
       name: file.name,
       status: "pending" as const,
     }));
 
-    setFiles((prev) => [...prev, ...newFiles]);
+    // Update files state and get the new state
+    const updatedFiles = [...files, ...newFiles];
+    setFiles(updatedFiles);
     setIsProcessing(true);
 
     // Process files one by one
     for (let i = 0; i < glbFiles.length; i++) {
       const file = glbFiles[i];
-      const index = files.length + i;
+      const index = files.length + i; // This is the index in the updatedFiles array
 
       try {
         // Update status to processing
-        setFiles((prev) => prev.map((f, idx) => (idx === index ? { ...f, status: "processing" } : f)));
+        setFiles((prev) => {
+          const updated = [...prev];
+          if (updated[index]) {
+            updated[index] = { ...updated[index], status: "processing" };
+          }
+          return updated;
+        });
 
-        // Create a copy of the file with the correct MIME type
+        // Read file as array buffer
         const fileData = await readFileAsArrayBuffer(file);
-        const newFile = new File([fileData], file.name, { type: 'model/gltf-binary' });
         
-        // Create a direct URL to the file
-        const assetUrl = URL.createObjectURL(newFile);
-        console.log("Created asset URL from File object:", assetUrl);
-
+        // Process the GLB file with optimization settings
+        const assetUrl = await processGLB(new Uint8Array(fileData));
+        
         // Update with result
-        setFiles((prev) =>
-          prev.map((f, idx) => (idx === index ? { ...f, status: "completed", url: assetUrl } : f))
-        );
+        setFiles((prev) => {
+          const updated = [...prev];
+          if (updated[index]) {
+            updated[index] = { ...updated[index], status: "completed", url: assetUrl };
+          }
+          return updated;
+        });
         
-        // Set as selected model if it's the first one
+        // Set as selected model if there isn't one already selected
         if (!selectedModel) {
           setSelectedModel(assetUrl);
         }
       } catch (error) {
         console.error("Error processing file:", error);
-        setFiles((prev) => prev.map((f, idx) => (idx === index ? { ...f, status: "error", error: String(error) } : f)));
+        setFiles((prev) => {
+          const updated = [...prev];
+          if (updated[index]) {
+            updated[index] = { ...updated[index], status: "error", error: String(error) };
+          }
+          return updated;
+        });
       }
     }
 
@@ -132,6 +170,7 @@ export default function FileUploader() {
     // Creating GLTF-Transform Document
     const doc = await io.readBinary(uint8Array);
 
+    // Calculate initial VRAM usage
     doc
       .getRoot()
       .listTextures()
@@ -139,12 +178,53 @@ export default function FileUploader() {
         const vram = ImageUtils.getVRAMByteLength(tex.getImage()!, tex.getMimeType());
         totalVRAM += vram!;
       });
-    console.log("totalVRAM ", totalVRAM);
+    console.log("Initial VRAM usage:", totalVRAM);
     
-    transformsArray.push(dedup);
-
-    await doc.transform(...transformsArray.map(fn => fn()));
-
+    // Apply transformations based on settings
+    const transforms: Transform[] = [];
+    
+    // Add dedup if enabled
+    if (settings.enableDedup) {
+      transforms.push(dedup({
+        accessors: settings.dedupOptions.accessors,
+        meshes: settings.dedupOptions.meshes,
+        materials: settings.dedupOptions.materials
+      }));
+    }
+    
+    // Add texture compression if enabled
+    if (settings.enableTextureCompression) {
+      const compressionOptions: any = {
+        targetFormat: settings.textureCompressionOptions.format,
+        resize: settings.textureCompressionOptions.resize
+      };
+      
+      // Only set quality if it's not 'auto'
+      if (settings.textureCompressionOptions.quality !== 'auto') {
+        compressionOptions.quality = settings.textureCompressionOptions.quality;
+      }
+      
+      transforms.push(textureCompress(compressionOptions));
+    }
+    
+    // Apply all transforms
+    if (transforms.length > 0) {
+      await doc.transform(...transforms);
+      
+      // Calculate final VRAM usage
+      let finalVRAM = 0;
+      doc
+        .getRoot()
+        .listTextures()
+        .forEach((tex) => {
+          const vram = ImageUtils.getVRAMByteLength(tex.getImage()!, tex.getMimeType());
+          finalVRAM += vram!;
+        });
+      console.log("Final VRAM usage:", finalVRAM);
+      console.log("VRAM reduction:", totalVRAM - finalVRAM, "bytes (", 
+        ((totalVRAM - finalVRAM) / totalVRAM * 100).toFixed(2), "%)");
+    }
+    
     // Output optimized GLB
     const glb = await io.writeBinary(doc);
     
@@ -158,6 +238,56 @@ export default function FileUploader() {
 
   const handleModelSelect = (url: string) => {
     setSelectedModel(url);
+  };
+
+  const handleDownloadZip = async () => {
+    const completedFiles = files.filter(file => file.status === "completed");
+    
+    if (completedFiles.length === 0) {
+      alert("No processed files to download");
+      return;
+    }
+    
+    setIsZipping(true);
+    
+    try {
+      const zip = new JSZip();
+      
+      // Add each processed file to the zip
+      for (const file of completedFiles) {
+        if (file.url) {
+          // Fetch the file data from the blob URL
+          const response = await fetch(file.url);
+          const blob = await response.blob();
+          
+          // Add to zip with optimized prefix to distinguish from original
+          const fileName = file.name.replace('.glb', '_optimized.glb');
+          zip.file(fileName, blob);
+        }
+      }
+      
+      // Generate the zip file
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      
+      // Create download link
+      const downloadUrl = URL.createObjectURL(zipBlob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = "optimized_models.zip";
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Error creating zip file:", error);
+      alert("Failed to create zip file");
+    } finally {
+      setIsZipping(false);
+    }
   };
 
   return (
@@ -192,7 +322,16 @@ export default function FileUploader() {
 
           {files.length > 0 && (
             <div className="file-list">
-              <h3>Files:</h3>
+              <div className="file-list-header">
+                <h3>Files:</h3>
+                <button 
+                  className="btn btn-small"
+                  onClick={handleDownloadZip}
+                  disabled={isZipping || files.filter(f => f.status === "completed").length === 0}
+                >
+                  {isZipping ? "Creating Zip..." : "Download as Zip"}
+                </button>
+              </div>
               <ul>
                 {files.map((file, index) => (
                   <li 
@@ -207,11 +346,6 @@ export default function FileUploader() {
                       {file.status === "completed" && "Completed"}
                       {file.status === "error" && `Error: ${file.error}`}
                     </span>
-                    {file.status === "completed" && (
-                      <div className="file-result">
-                        <small>Result: Uint8Array({file.result?.length} bytes)</small>
-                      </div>
-                    )}
                   </li>
                 ))}
               </ul>
@@ -232,6 +366,17 @@ export default function FileUploader() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
