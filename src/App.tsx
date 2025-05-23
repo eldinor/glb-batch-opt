@@ -15,6 +15,7 @@ interface OptimizationSettings {
     quality: 'auto' | number; // Changed to allow 'auto' or a number
     resize: [number, number] | null;
   };
+  enableFlatten: boolean; // Add new flatten option
 }
 
 function App() {
@@ -30,7 +31,8 @@ function App() {
       format: 'webp',
       quality: 'auto', // Changed to 'auto'
       resize: [1024, 1024]
-    }
+    },
+    enableFlatten: true // Set to true by default
   });
 
   const handleSettingChange = (
@@ -73,13 +75,11 @@ function App() {
     <>
       <header className="app-header">
         <div className="header-controls">
-          {/* Remove the Settings button that was using showSettings */}
+          {/* Any additional header controls can go here */}
         </div>
       </header>
 
       <div className="settings-panel">
-        <h3>Optimization Settings</h3>
-        
         <div className="setting-group">
           <div className="setting-group-title">
             <input
@@ -122,6 +122,19 @@ function App() {
               </div>
             </div>
           )}
+        </div>
+        
+        {/* Add new flatten setting group */}
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enableFlatten}
+              onChange={(e) => handleSettingChange('enableFlatten', e.target.checked)}
+              id="flatten-toggle"
+            />
+            <label htmlFor="flatten-toggle">Flatten Node Hierarchy</label>
+          </div>
         </div>
         
         <div className="setting-group">
@@ -192,6 +205,9 @@ function App() {
 }
 
 export default App
+
+
+
 
 
 

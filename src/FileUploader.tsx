@@ -1,6 +1,6 @@
 import { ImageUtils, WebIO, type Transform } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
-import { dedup, textureCompress } from "@gltf-transform/functions";
+import { dedup, textureCompress, flatten } from "@gltf-transform/functions";
 import { MeshoptEncoder, MeshoptDecoder } from "meshoptimizer";
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
 import JSZip from "jszip";
@@ -27,6 +27,7 @@ interface OptimizationSettings {
     quality: 'auto' | number; // Changed to allow 'auto' or a number
     resize: [number, number] | null;
   };
+  enableFlatten: boolean; // Add new flatten option
 }
 
 interface FileUploaderProps {
@@ -190,6 +191,11 @@ export default function FileUploader({ settings }: FileUploaderProps) {
         meshes: settings.dedupOptions.meshes,
         materials: settings.dedupOptions.materials
       }));
+    }
+    
+    // Add flatten if enabled
+    if (settings.enableFlatten) {
+      transforms.push(flatten());
     }
     
     // Add texture compression if enabled
@@ -366,6 +372,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     </div>
   );
 }
+
 
 
 
