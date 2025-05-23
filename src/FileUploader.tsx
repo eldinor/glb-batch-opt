@@ -418,8 +418,8 @@ export default function FileUploader({ settings }: FileUploaderProps) {
           const response = await fetch(file.url);
           const blob = await response.blob();
           
-          // Add to zip with optimized prefix to distinguish from original
-          const fileName = file.name.replace('.glb', '_optimized.glb');
+          // Add to zip with formatted name
+          const fileName = formatFileName(file.name);
           zip.file(fileName, blob);
         }
       }
@@ -446,6 +446,35 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     } finally {
       setIsZipping(false);
     }
+  };
+
+  const handleDownloadFile = (url: string, fileName: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the file selection
+    
+    // Create a temporary anchor element
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = formatFileName(fileName);
+    
+    // Append to body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const formatFileName = (fileName: string): string => {
+    const { fileNameSuffix, shortenFileNames, maxFileNameLength } = settings.userSettings;
+    
+    // Remove .glb extension
+    let baseName = fileName.replace('.glb', '');
+    
+    // Shorten if needed
+    if (shortenFileNames && baseName.length > maxFileNameLength) {
+      baseName = baseName.substring(0, maxFileNameLength);
+    }
+    
+    // Add suffix and extension
+    return `${baseName}${fileNameSuffix}.glb`;
   };
 
   return (
@@ -497,7 +526,18 @@ export default function FileUploader({ settings }: FileUploaderProps) {
                     className={`file-item status-${file.status} ${file.url === selectedModel ? 'selected' : ''}`}
                     onClick={() => file.url && handleModelSelect(file.url)}
                   >
-                    <span className="file-name">{file.name}</span>
+                    <div className="file-item-header">
+                      <span className="file-name">{file.name}</span>
+                      {file.status === "completed" && file.url && (
+                        <button 
+                          className="download-btn"
+                          onClick={(e) => handleDownloadFile(file.url!, file.name, e)}
+                          title="Download optimized GLB"
+                        >
+                          ↓
+                        </button>
+                      )}
+                    </div>
                     <span className="file-status">
                       {file.status === "pending" && "Pending"}
                       {file.status === "processing" && "Processing..."}
@@ -537,8 +577,6 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     </div>
   );
 }
-
-
 
 
 

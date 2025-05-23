@@ -54,6 +54,11 @@ interface OptimizationSettings {
     overwrite: boolean;
   };
   enableMetalRough: boolean;
+  userSettings: {
+    fileNameSuffix: string;
+    maxFileNameLength: number;
+    shortenFileNames: boolean;
+  };
 }
 
 function App() {
@@ -108,8 +113,15 @@ function App() {
     normalsOptions: {
       overwrite: true
     },
-    enableMetalRough: false
+    enableMetalRough: false,
+    userSettings: {
+      fileNameSuffix: '_optimized',
+      maxFileNameLength: 20,
+      shortenFileNames: false
+    }
   });
+
+  const [showUserSettings, setShowUserSettings] = useState(false);
 
   const handleSettingChange = (
     settingType: keyof OptimizationSettings, 
@@ -251,11 +263,69 @@ function App() {
     }));
   };
 
+  const handleUserSettingChange = (
+    option: keyof OptimizationSettings['userSettings'],
+    value: any
+  ) => {
+    setSettings(prev => ({
+      ...prev,
+      userSettings: {
+        ...prev.userSettings,
+        [option]: value
+      }
+    }));
+  };
+
   return (
     <>
       <header className="app-header">
         <div className="header-controls">
-          {/* Any additional header controls can go here */}
+          <div className="user-settings">
+            <button 
+              className="settings-toggle-btn"
+              onClick={() => setShowUserSettings(prev => !prev)}
+            >
+              User Settings
+            </button>
+            
+            {showUserSettings && (
+              <div className="user-settings-dropdown">
+                <div className="setting-field">
+                  <label htmlFor="file-suffix">File Suffix:</label>
+                  <input
+                    type="text"
+                    id="file-suffix"
+                    value={settings.userSettings.fileNameSuffix}
+                    onChange={(e) => handleUserSettingChange('fileNameSuffix', e.target.value)}
+                  />
+                </div>
+                
+                <div className="setting-field">
+                  <input
+                    type="checkbox"
+                    id="shorten-names"
+                    checked={settings.userSettings.shortenFileNames}
+                    onChange={(e) => handleUserSettingChange('shortenFileNames', e.target.checked)}
+                  />
+                  <label htmlFor="shorten-names">Shorten File Names</label>
+                </div>
+                
+                {settings.userSettings.shortenFileNames && (
+                  <div className="setting-field">
+                    <label htmlFor="max-length">Max Length:</label>
+                    <input
+                      type="number"
+                      id="max-length"
+                      min="5"
+                      max="100"
+                      value={settings.userSettings.maxFileNameLength}
+                      onChange={(e) => handleUserSettingChange('maxFileNameLength', parseInt(e.target.value))}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -729,34 +799,4 @@ function App() {
 }
 
 export default App
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
