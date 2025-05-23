@@ -1,7 +1,7 @@
 import { ImageUtils, WebIO, type Transform } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
-import { dedup, textureCompress, flatten } from "@gltf-transform/functions";
-import { MeshoptEncoder, MeshoptDecoder } from "meshoptimizer";
+import { dedup, textureCompress, flatten, join, weld, simplify, center, meshopt } from "@gltf-transform/functions";
+import { MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier } from "meshoptimizer";
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
 import JSZip from "jszip";
 import ModelViewer from "./ModelViewer";
@@ -24,10 +24,25 @@ interface OptimizationSettings {
   enableTextureCompression: boolean;
   textureCompressionOptions: {
     format: 'webp' | 'jpeg' | 'png';
-    quality: 'auto' | number; // Changed to allow 'auto' or a number
+    quality: 'auto' | number;
     resize: [number, number] | null;
   };
-  enableFlatten: boolean; // Add new flatten option
+  enableFlatten: boolean;
+  enableJoin: boolean;
+  enableWeld: boolean;
+  enableSimplify: boolean;
+  simplifyOptions: {
+    ratio: number;
+    error: number;
+  };
+  enableCenter: boolean;
+  centerOptions: {
+    pivot: 'center' | 'bottom' | 'origin';
+  };
+  enableMeshopt: boolean;
+  meshoptOptions: {
+    level: 'high' | 'medium' | 'low';
+  };
 }
 
 interface FileUploaderProps {
@@ -163,9 +178,14 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
   const processGLB = async (uint8Array: Uint8Array): Promise<string> => {
     let totalVRAM = 0;
+    
+    // Initialize MeshoptEncoder
+    await MeshoptEncoder.ready;
+    
     const io = new WebIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({
       "meshopt.decoder": MeshoptDecoder,
       "meshopt.encoder": MeshoptEncoder,
+      "meshopt.simplifier": MeshoptSimplifier,
     });
     
     // Creating GLTF-Transform Document
@@ -196,6 +216,40 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     // Add flatten if enabled
     if (settings.enableFlatten) {
       transforms.push(flatten());
+    }
+    
+    // Add join if enabled
+    if (settings.enableJoin) {
+      transforms.push(join());
+    }
+    
+    // Add weld if enabled
+    if (settings.enableWeld) {
+      transforms.push(weld());
+    }
+    
+    // Add center if enabled
+    if (settings.enableCenter) {
+      transforms.push(center({
+        pivot: settings.centerOptions.pivot
+      }));
+    }
+    
+    // Add meshopt if enabled
+    if (settings.enableMeshopt) {
+      transforms.push(meshopt({
+        encoder: MeshoptEncoder,
+        level: settings.meshoptOptions.level
+      }));
+    }
+    
+    // Add simplify if enabled
+    if (settings.enableSimplify) {
+      transforms.push(simplify({
+        simplifier: MeshoptSimplifier,
+        ratio: settings.simplifyOptions.ratio,
+        error: settings.simplifyOptions.error
+      }));
     }
     
     // Add texture compression if enabled
@@ -372,6 +426,15 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
 
 
 
