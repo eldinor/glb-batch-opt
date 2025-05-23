@@ -62,66 +62,149 @@ interface OptimizationSettings {
 }
 
 function App() {
-  const [settings, setSettings] = useState<OptimizationSettings>({
-    enableDedup: true,
-    dedupOptions: {
-      accessors: true,
-      meshes: true,
-      materials: true,
-    },
-    enableTextureCompression: true,
-    textureCompressionOptions: {
-      format: 'webp',
-      quality: 'auto',
-      resize: [1024, 1024]
-    },
-    enableFlatten: true,
-    enableJoin: true,
-    enableWeld: true,
-    enableSimplify: true,
-    simplifyOptions: {
-      ratio: 0.75,
-      error: 0.01
-    },
-    enableCenter: false,
-    centerOptions: {
-      pivot: 'center'
-    },
-    enableMeshopt: false,
-    meshoptOptions: {
-      level: 'medium'
-    },
-    enablePrune: true,
-    pruneOptions: {
-      keepExtras: true
-    },
-    enableQuantize: false,
-    enableResample: false,
-    enableInstance: false,
-    instanceOptions: {
-      min: 5
-    },
-    enableSparse: false,
-    sparseOptions: {
-      ratio: 0.1
-    },
-    enablePalette: false,
-    paletteOptions: {
-      min: 3
-    },
-    enableNormals: false,
-    normalsOptions: {
-      overwrite: true
-    },
-    enableMetalRough: false,
-    userSettings: {
-      fileNameSuffix: '_optimized',
-      maxFileNameLength: 20,
-      shortenFileNames: false
+  const [settings, setSettings] = useState<OptimizationSettings>(() => {
+    // Try to load settings from localStorage
+    const savedSettings = localStorage.getItem('optimizationSettings');
+    if (savedSettings) {
+      try {
+        return JSON.parse(savedSettings);
+      } catch (e) {
+        console.error('Failed to parse saved settings:', e);
+      }
     }
+    
+    // Return default settings if no saved settings exist or parsing failed
+    return {
+      enableDedup: true,
+      dedupOptions: {
+        accessors: true,
+        meshes: true,
+        materials: true,
+      },
+      enableTextureCompression: true,
+      textureCompressionOptions: {
+        format: 'webp',
+        quality: 'auto',
+        resize: [1024, 1024]
+      },
+      enableFlatten: true,
+      enableJoin: true,
+      enableWeld: true,
+      enableSimplify: true,
+      simplifyOptions: {
+        ratio: 0.75,
+        error: 0.01
+      },
+      enableCenter: false,
+      centerOptions: {
+        pivot: 'center'
+      },
+      enableMeshopt: false,
+      meshoptOptions: {
+        level: 'medium'
+      },
+      enablePrune: true,
+      pruneOptions: {
+        keepExtras: true
+      },
+      enableQuantize: false,
+      enableResample: false,
+      enableInstance: false,
+      instanceOptions: {
+        min: 5
+      },
+      enableSparse: false,
+      sparseOptions: {
+        ratio: 0.1
+      },
+      enablePalette: false,
+      paletteOptions: {
+        min: 3
+      },
+      enableNormals: false,
+      normalsOptions: {
+        overwrite: true
+      },
+      enableMetalRough: false,
+      userSettings: {
+        fileNameSuffix: '_optimized',
+        maxFileNameLength: 20,
+        shortenFileNames: false
+      }
+    };
   });
 
   const [showUserSettings, setShowUserSettings] = useState(false);
+  
+  // Save settings to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('optimizationSettings', JSON.stringify(settings));
+  }, [settings]);
+
+  // Add a function to reset settings to defaults
+  const resetSettings = () => {
+    const defaultSettings: OptimizationSettings = {
+      enableDedup: true,
+      dedupOptions: {
+        accessors: true,
+        meshes: true,
+        materials: true,
+      },
+      enableTextureCompression: true,
+      textureCompressionOptions: {
+        format: 'webp',
+        quality: 'auto',
+        resize: [1024, 1024]
+      },
+      enableFlatten: true,
+      enableJoin: true,
+      enableWeld: true,
+      enableSimplify: true,
+      simplifyOptions: {
+        ratio: 0.75,
+        error: 0.01
+      },
+      enableCenter: false,
+      centerOptions: {
+        pivot: 'center'
+      },
+      enableMeshopt: false,
+      meshoptOptions: {
+        level: 'medium'
+      },
+      enablePrune: true,
+      pruneOptions: {
+        keepExtras: true
+      },
+      enableQuantize: false,
+      enableResample: false,
+      enableInstance: false,
+      instanceOptions: {
+        min: 5
+      },
+      enableSparse: false,
+      sparseOptions: {
+        ratio: 0.1
+      },
+      enablePalette: false,
+      paletteOptions: {
+        min: 3
+      },
+      enableNormals: false,
+      normalsOptions: {
+        overwrite: true
+      },
+      enableMetalRough: false,
+      userSettings: {
+        fileNameSuffix: '_optimized',
+        maxFileNameLength: 20,
+        shortenFileNames: false
+      }
+    };
+    
+    setSettings(defaultSettings);
+    localStorage.setItem('optimizationSettings', JSON.stringify(defaultSettings));
+  };
 
   const handleSettingChange = (
     settingType: keyof OptimizationSettings, 
@@ -323,6 +406,15 @@ function App() {
                     />
                   </div>
                 )}
+                
+                <div className="setting-field reset-settings">
+                  <button 
+                    className="reset-btn"
+                    onClick={resetSettings}
+                  >
+                    Reset All Settings
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -642,6 +734,45 @@ function App() {
                   <option value="png">PNG</option>
                 </select>
               </div>
+              
+              <div className="setting-option">
+                <label htmlFor="texture-quality">Quality:</label>
+                <div className="quality-control">
+                  <select
+                    id="texture-quality-mode"
+                    value={settings.textureCompressionOptions.quality === 'auto' ? 'auto' : 'manual'}
+                    onChange={(e) => {
+                      if (e.target.value === 'auto') {
+                        handleTextureCompressionOptionChange('quality', 'auto');
+                      } else {
+                        handleTextureCompressionOptionChange('quality', 0.8);
+                      }
+                    }}
+                  >
+                    <option value="auto">Auto</option>
+                    <option value="manual">Manual</option>
+                  </select>
+                  
+                  {settings.textureCompressionOptions.quality !== 'auto' && (
+                    <div className="slider-container quality-slider">
+                      <input
+                        type="range"
+                        id="texture-quality"
+                        min="0.1"
+                        max="1"
+                        step="0.05"
+                        value={settings.textureCompressionOptions.quality}
+                        onChange={(e) => handleTextureCompressionOptionChange('quality', parseFloat(e.target.value))}
+                        className="slider"
+                      />
+                      <div className="quality-value">
+                        {(settings.textureCompressionOptions.quality * 100).toFixed(0)}%
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
               <div className="setting-option">
                 <input
                   type="checkbox"
@@ -799,4 +930,13 @@ function App() {
 }
 
 export default App
+
+
+
+
+
+
+
+
+
 

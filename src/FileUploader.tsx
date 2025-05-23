@@ -477,6 +477,51 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     return `${baseName}${fileNameSuffix}.glb`;
   };
 
+  const handleRemoveFile = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the file selection
+    
+    // Get the file to remove
+    const fileToRemove = files[index];
+    
+    // If the file has a URL, revoke it to free up memory
+    if (fileToRemove.url) {
+      URL.revokeObjectURL(fileToRemove.url);
+    }
+    
+    // Remove the file from the list
+    setFiles(prev => {
+      const updated = [...prev];
+      updated.splice(index, 1);
+      return updated;
+    });
+    
+    // If the removed file was the selected model, clear the selection
+    if (fileToRemove.url === selectedModel) {
+      setSelectedModel(null);
+    }
+  };
+
+  // Function to truncate file name with ellipsis if too long
+  const truncateFileName = (fileName: string, maxLength: number = 20): string => {
+    if (fileName.length <= maxLength) return fileName;
+    
+    // Get file extension
+    const lastDotIndex = fileName.lastIndexOf('.');
+    const extension = lastDotIndex !== -1 ? fileName.substring(lastDotIndex) : '';
+    
+    // Calculate how much of the name we can show
+    const nameWithoutExtension = fileName.substring(0, lastDotIndex !== -1 ? lastDotIndex : fileName.length);
+    const maxNameLength = maxLength - extension.length - 3; // 3 for the ellipsis
+    
+    if (maxNameLength <= 0) {
+      // If the extension is too long, just truncate the whole thing
+      return fileName.substring(0, maxLength - 3) + '...';
+    }
+    
+    // Return truncated name with ellipsis and extension
+    return nameWithoutExtension.substring(0, maxNameLength) + '...' + extension;
+  };
+
   return (
     <div className="app-container">
       <div className="file-uploader-container">
@@ -527,16 +572,20 @@ export default function FileUploader({ settings }: FileUploaderProps) {
                     onClick={() => file.url && handleModelSelect(file.url)}
                   >
                     <div className="file-item-header">
-                      <span className="file-name">{file.name}</span>
-                      {file.status === "completed" && file.url && (
-                        <button 
-                          className="download-btn"
-                          onClick={(e) => handleDownloadFile(file.url!, file.name, e)}
-                          title="Download optimized GLB"
-                        >
-                          ↓
-                        </button>
-                      )}
+                      <span className="file-name" title={file.name}>
+                        {truncateFileName(file.name, 24)}
+                      </span>
+                      <div className="file-actions">
+                        {file.status === "completed" && file.url && (
+                          <button 
+                            className="download-btn"
+                            onClick={(e) => handleDownloadFile(file.url!, file.name, e)}
+                            title="Download optimized GLB"
+                          >
+                            ↓
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <span className="file-status">
                       {file.status === "pending" && "Pending"}
@@ -557,6 +606,13 @@ export default function FileUploader({ settings }: FileUploaderProps) {
                         )}
                       </span>
                     )}
+                    <button 
+                      className="remove-btn corner-btn"
+                      onClick={(e) => handleRemoveFile(index, e)}
+                      title="Remove file"
+                    >
+                      ×
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -577,6 +633,11 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     </div>
   );
 }
+
+
+
+
+
 
 
 
