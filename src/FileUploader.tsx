@@ -29,6 +29,8 @@ interface FileProgress {
   result?: Uint8Array;
   error?: string;
   url?: string;
+  originalSize?: number; // Size in bytes
+  optimizedSize?: number; // Size in bytes
 }
 
 interface OptimizationSettings {
@@ -118,6 +120,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     const newFiles = glbFiles.map((file) => ({
       name: file.name,
       status: "pending" as const,
+      originalSize: file.size, // Store original file size
     }));
 
     // Update files state and get the new state
@@ -144,20 +147,25 @@ export default function FileUploader({ settings }: FileUploaderProps) {
         const fileData = await readFileAsArrayBuffer(file);
         
         // Process the GLB file with optimization settings
-        const assetUrl = await processGLB(new Uint8Array(fileData));
+        const result = await processGLB(new Uint8Array(fileData));
         
         // Update with result
         setFiles((prev) => {
           const updated = [...prev];
           if (updated[index]) {
-            updated[index] = { ...updated[index], status: "completed", url: assetUrl };
+            updated[index] = { 
+              ...updated[index], 
+              status: "completed", 
+              url: result.url,
+              optimizedSize: result.size 
+            };
           }
           return updated;
         });
         
         // Set as selected model if there isn't one already selected
         if (!selectedModel) {
-          setSelectedModel(assetUrl);
+          setSelectedModel(result.url);
         }
       } catch (error) {
         console.error("Error processing file:", error);
@@ -216,7 +224,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     });
   };
 
-  const processGLB = async (uint8Array: Uint8Array): Promise<string> => {
+  const processGLB = async (uint8Array: Uint8Array): Promise<{url: string, size: number}> => {
     let totalVRAM = 0;
     
     // Initialize MeshoptEncoder
@@ -383,7 +391,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     const assetUrl = URL.createObjectURL(assetBlob);
     
     console.log("Created asset URL:", assetUrl);
-    return assetUrl;
+    return {url: assetUrl, size: glb.byteLength};
   };
 
   const handleModelSelect = (url: string) => {
@@ -496,6 +504,19 @@ export default function FileUploader({ settings }: FileUploaderProps) {
                       {file.status === "completed" && "Completed"}
                       {file.status === "error" && `Error: ${file.error}`}
                     </span>
+                    {file.originalSize && (
+                      <span className="file-size">
+                        Original: {(file.originalSize / (1024 * 1024)).toFixed(2)} MB
+                        {file.optimizedSize && (
+                          <>
+                            <br />
+                            Optimized: {(file.optimizedSize / (1024 * 1024)).toFixed(2)} MB
+                            <br />
+                            Reduction: {((file.originalSize - file.optimizedSize) / file.originalSize * 100).toFixed(1)}%
+                          </>
+                        )}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -516,6 +537,11 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     </div>
   );
 }
+
+
+
+
+
 
 
 

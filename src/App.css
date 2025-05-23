@@ -327,6 +327,13 @@ body {
   margin-top: 4px;
 }
 
+.file-size {
+  font-size: 0.75rem;
+  color: #666;
+  display: block;
+  margin-top: 4px;
+}
+
 /* Slider styles */
 .slider-container {
   width: 100%;
@@ -374,5 +381,6 @@ body {
   display: block;
   margin-bottom: 5px;
 }
+
 
 
