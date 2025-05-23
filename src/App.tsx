@@ -90,7 +90,7 @@ function App() {
       enableFlatten: true,
       enableJoin: true,
       enableWeld: true,
-      enableSimplify: true,
+      enableSimplify: false, // Changed from true to false
       simplifyOptions: {
         ratio: 0.75,
         error: 0.01
@@ -159,7 +159,7 @@ function App() {
       enableFlatten: true,
       enableJoin: true,
       enableWeld: true,
-      enableSimplify: true,
+      enableSimplify: false, // Changed from true to false
       simplifyOptions: {
         ratio: 0.75,
         error: 0.01
@@ -930,6 +930,11 @@ function App() {
 }
 
 export default App
+
+
+
+
+
 
 
 
