@@ -1,6 +1,23 @@
 import { ImageUtils, WebIO, type Transform } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
-import { dedup, textureCompress, flatten, join, weld, simplify, center, meshopt } from "@gltf-transform/functions";
+import { 
+  dedup, 
+  textureCompress, 
+  flatten, 
+  join, 
+  weld, 
+  simplify, 
+  center, 
+  meshopt, 
+  prune,
+  quantize,
+  resample,
+  instance,
+  sparse,
+  palette,
+  normals,
+  metalRough
+} from "@gltf-transform/functions";
 import { MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier } from "meshoptimizer";
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
 import JSZip from "jszip";
@@ -43,6 +60,29 @@ interface OptimizationSettings {
   meshoptOptions: {
     level: 'high' | 'medium' | 'low';
   };
+  enablePrune: boolean;
+  pruneOptions: {
+    keepExtras: boolean;
+  };
+  enableQuantize: boolean;
+  enableResample: boolean;
+  enableInstance: boolean;
+  instanceOptions: {
+    min: number;
+  };
+  enableSparse: boolean;
+  sparseOptions: {
+    ratio: number;
+  };
+  enablePalette: boolean;
+  paletteOptions: {
+    min: number;
+  };
+  enableNormals: boolean;
+  normalsOptions: {
+    overwrite: boolean;
+  };
+  enableMetalRough: boolean;
 }
 
 interface FileUploaderProps {
@@ -204,12 +244,33 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     // Apply transformations based on settings
     const transforms: Transform[] = [];
     
+    // Add prune if enabled
+    if (settings.enablePrune) {
+      transforms.push(prune({
+        keepExtras: settings.pruneOptions.keepExtras
+      }));
+    }
+    
+    // Add instance if enabled
+    if (settings.enableInstance) {
+      transforms.push(instance({
+        min: settings.instanceOptions.min
+      }));
+    }
+    
     // Add dedup if enabled
     if (settings.enableDedup) {
       transforms.push(dedup({
         accessors: settings.dedupOptions.accessors,
         meshes: settings.dedupOptions.meshes,
         materials: settings.dedupOptions.materials
+      }));
+    }
+    
+    // Add palette if enabled
+    if (settings.enablePalette) {
+      transforms.push(palette({
+        min: settings.paletteOptions.min
       }));
     }
     
@@ -233,6 +294,16 @@ export default function FileUploader({ settings }: FileUploaderProps) {
       transforms.push(center({
         pivot: settings.centerOptions.pivot
       }));
+    }
+    
+    // Add quantize if enabled
+    if (settings.enableQuantize) {
+      transforms.push(quantize());
+    }
+    
+    // Add resample if enabled
+    if (settings.enableResample) {
+      transforms.push(resample());
     }
     
     // Add meshopt if enabled
@@ -265,6 +336,25 @@ export default function FileUploader({ settings }: FileUploaderProps) {
       }
       
       transforms.push(textureCompress(compressionOptions));
+    }
+    
+    // Add sparse if enabled
+    if (settings.enableSparse) {
+      transforms.push(sparse({
+        ratio: settings.sparseOptions.ratio
+      }));
+    }
+    
+    // Add normals if enabled
+    if (settings.enableNormals) {
+      transforms.push(normals({
+        overwrite: settings.normalsOptions.overwrite
+      }));
+    }
+    
+    // Add metalRough if enabled
+    if (settings.enableMetalRough) {
+      transforms.push(metalRough());
     }
     
     // Apply all transforms
@@ -426,28 +516,6 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

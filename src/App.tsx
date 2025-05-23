@@ -31,6 +31,29 @@ interface OptimizationSettings {
   meshoptOptions: {
     level: 'high' | 'medium' | 'low';
   };
+  enablePrune: boolean;
+  pruneOptions: {
+    keepExtras: boolean;
+  };
+  enableQuantize: boolean;
+  enableResample: boolean;
+  enableInstance: boolean;
+  instanceOptions: {
+    min: number;
+  };
+  enableSparse: boolean;
+  sparseOptions: {
+    ratio: number;
+  };
+  enablePalette: boolean;
+  paletteOptions: {
+    min: number;
+  };
+  enableNormals: boolean;
+  normalsOptions: {
+    overwrite: boolean;
+  };
+  enableMetalRough: boolean;
 }
 
 function App() {
@@ -62,7 +85,30 @@ function App() {
     enableMeshopt: false,
     meshoptOptions: {
       level: 'medium'
-    }
+    },
+    enablePrune: true,
+    pruneOptions: {
+      keepExtras: true
+    },
+    enableQuantize: false,
+    enableResample: false,
+    enableInstance: false,
+    instanceOptions: {
+      min: 5
+    },
+    enableSparse: false,
+    sparseOptions: {
+      ratio: 0.1
+    },
+    enablePalette: false,
+    paletteOptions: {
+      min: 3
+    },
+    enableNormals: false,
+    normalsOptions: {
+      overwrite: true
+    },
+    enableMetalRough: false
   });
 
   const handleSettingChange = (
@@ -140,6 +186,71 @@ function App() {
     }));
   };
 
+  const handlePruneOptionChange = (
+    option: keyof OptimizationSettings['pruneOptions'], 
+    value: boolean
+  ) => {
+    setSettings(prev => ({
+      ...prev,
+      pruneOptions: {
+        ...prev.pruneOptions,
+        [option]: value
+      }
+    }));
+  };
+
+  const handleInstanceOptionChange = (
+    option: keyof OptimizationSettings['instanceOptions'], 
+    value: number
+  ) => {
+    setSettings(prev => ({
+      ...prev,
+      instanceOptions: {
+        ...prev.instanceOptions,
+        [option]: value
+      }
+    }));
+  };
+
+  const handleSparseOptionChange = (
+    option: keyof OptimizationSettings['sparseOptions'], 
+    value: number
+  ) => {
+    setSettings(prev => ({
+      ...prev,
+      sparseOptions: {
+        ...prev.sparseOptions,
+        [option]: value
+      }
+    }));
+  };
+
+  const handlePaletteOptionChange = (
+    option: keyof OptimizationSettings['paletteOptions'], 
+    value: number
+  ) => {
+    setSettings(prev => ({
+      ...prev,
+      paletteOptions: {
+        ...prev.paletteOptions,
+        [option]: value
+      }
+    }));
+  };
+
+  const handleNormalsOptionChange = (
+    option: keyof OptimizationSettings['normalsOptions'], 
+    value: boolean
+  ) => {
+    setSettings(prev => ({
+      ...prev,
+      normalsOptions: {
+        ...prev.normalsOptions,
+        [option]: value
+      }
+    }));
+  };
+
   return (
     <>
       <header className="app-header">
@@ -149,6 +260,68 @@ function App() {
       </header>
 
       <div className="settings-panel">
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enableInstance}
+              onChange={(e) => handleSettingChange('enableInstance', e.target.checked)}
+              id="instance-toggle"
+            />
+            <label htmlFor="instance-toggle">Create Instances</label>
+          </div>
+          
+          {settings.enableInstance && (
+            <div className="setting-options">
+              <div className="setting-option">
+                <label htmlFor="instance-min">Minimum Occurrences: {settings.instanceOptions.min}</label>
+                <div className="slider-container">
+                  <input
+                    type="range"
+                    id="instance-min"
+                    min="2"
+                    max="20"
+                    step="1"
+                    value={settings.instanceOptions.min}
+                    onChange={(e) => handleInstanceOptionChange('min', parseInt(e.target.value))}
+                    className="slider"
+                  />
+                  <div className="slider-labels">
+                    <span>Few</span>
+                    <span>Many</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enablePrune}
+              onChange={(e) => handleSettingChange('enablePrune', e.target.checked)}
+              id="prune-toggle"
+            />
+            <label htmlFor="prune-toggle">Prune Unused Data</label>
+          </div>
+          
+          {settings.enablePrune && (
+            <div className="setting-options">
+              <div className="setting-option">
+                <input
+                  type="checkbox"
+                  checked={settings.pruneOptions.keepExtras}
+                  onChange={(e) => handlePruneOptionChange('keepExtras', e.target.checked)}
+                  id="prune-keep-extras"
+                />
+                <label htmlFor="prune-keep-extras">Keep Metadata</label>
+              </div>
+            </div>
+          )}
+        </div>
+        
         <div className="setting-group">
           <div className="setting-group-title">
             <input
@@ -229,6 +402,32 @@ function App() {
               id="weld-toggle"
             />
             <label htmlFor="weld-toggle">Weld Vertices</label>
+          </div>
+        </div>
+        
+        {/* Quantize setting group */}
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enableQuantize}
+              onChange={(e) => handleSettingChange('enableQuantize', e.target.checked)}
+              id="quantize-toggle"
+            />
+            <label htmlFor="quantize-toggle">Quantize Attributes</label>
+          </div>
+        </div>
+        
+        {/* Resample setting group */}
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enableResample}
+              onChange={(e) => handleSettingChange('enableResample', e.target.checked)}
+              id="resample-toggle"
+            />
+            <label htmlFor="resample-toggle">Resample Animations</label>
           </div>
         </div>
         
@@ -406,6 +605,120 @@ function App() {
             </div>
           )}
         </div>
+        
+        {/* Palette setting group */}
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enablePalette}
+              onChange={(e) => handleSettingChange('enablePalette', e.target.checked)}
+              id="palette-toggle"
+            />
+            <label htmlFor="palette-toggle">Create Color Palettes</label>
+          </div>
+          
+          {settings.enablePalette && (
+            <div className="setting-options">
+              <div className="setting-option">
+                <label htmlFor="palette-min">Minimum Colors: {settings.paletteOptions.min}</label>
+                <div className="slider-container">
+                  <input
+                    type="range"
+                    id="palette-min"
+                    min="2"
+                    max="64"
+                    step="1"
+                    value={settings.paletteOptions.min}
+                    onChange={(e) => handlePaletteOptionChange('min', parseInt(e.target.value))}
+                    className="slider"
+                  />
+                  <div className="slider-labels">
+                    <span>Few</span>
+                    <span>Many</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Sparse setting group */}
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enableSparse}
+              onChange={(e) => handleSettingChange('enableSparse', e.target.checked)}
+              id="sparse-toggle"
+            />
+            <label htmlFor="sparse-toggle">Sparse Accessors</label>
+          </div>
+          
+          {settings.enableSparse && (
+            <div className="setting-options">
+              <div className="setting-option">
+                <label htmlFor="sparse-ratio">Zero Threshold: {settings.sparseOptions.ratio.toFixed(2)}</label>
+                <div className="slider-container">
+                  <input
+                    type="range"
+                    id="sparse-ratio"
+                    min="0.01"
+                    max="0.5"
+                    step="0.01"
+                    value={settings.sparseOptions.ratio}
+                    onChange={(e) => handleSparseOptionChange('ratio', parseFloat(e.target.value))}
+                    className="slider"
+                  />
+                  <div className="slider-labels">
+                    <span>Strict</span>
+                    <span>Lenient</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Add Normals setting group */}
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enableNormals}
+              onChange={(e) => handleSettingChange('enableNormals', e.target.checked)}
+              id="normals-toggle"
+            />
+            <label htmlFor="normals-toggle">Compute Normals</label>
+          </div>
+          
+          {settings.enableNormals && (
+            <div className="setting-options">
+              <div className="setting-option">
+                <input
+                  type="checkbox"
+                  checked={settings.normalsOptions.overwrite}
+                  onChange={(e) => handleNormalsOptionChange('overwrite', e.target.checked)}
+                  id="normals-overwrite"
+                />
+                <label htmlFor="normals-overwrite">Overwrite Existing</label>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Metal-Rough setting group */}
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enableMetalRough}
+              onChange={(e) => handleSettingChange('enableMetalRough', e.target.checked)}
+              id="metal-rough-toggle"
+            />
+            <label htmlFor="metal-rough-toggle">Convert to Metal-Rough</label>
+          </div>
+        </div>
       </div>
       
       <div className="app-container with-settings">
@@ -416,6 +729,17 @@ function App() {
 }
 
 export default App
+
+
+
+
+
+
+
+
+
+
+
 
 
 
