@@ -56,7 +56,7 @@ interface OptimizationSettings {
   };
   enableCenter: boolean;
   centerOptions: {
-    pivot: "center" | "above" | "below" | vec3 | undefined;
+    pivot: "center" | "bottom" | "origin";
   };
   enableMeshopt: boolean;
   meshoptOptions: {
@@ -85,10 +85,14 @@ interface OptimizationSettings {
     overwrite: boolean;
   };
   enableMetalRough: boolean;
+  userSettings: {
+    fileNameSuffix: string;
+    maxFileNameLength: number;
+    shortenFileNames: boolean;
+  };
 }
 
 interface FileUploaderProps {
-
   settings: OptimizationSettings;
 }
 
@@ -302,7 +306,9 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     // Add center if enabled
     if (settings.enableCenter) {
       transforms.push(center({
-        pivot: settings.centerOptions.pivot
+        pivot: settings.centerOptions.pivot === "bottom" ? "below" : 
+               settings.centerOptions.pivot === "origin" ? [0, 0, 0] as vec3 : 
+               settings.centerOptions.pivot
       }));
     }
     
@@ -551,7 +557,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          <h2>GLB File Uploader</h2>
+          <h2>GLB Batch Optimiizer</h2>
 
           <div className="upload-area">
             <p>Drag and drop .glb files here, or</p>
@@ -661,6 +667,9 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     </div>
   );
 }
+
+
+
 
 
 
