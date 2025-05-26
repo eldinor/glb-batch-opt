@@ -9,4 +9,4 @@ Key features include:
 - **Fast Processing:** Efficiently optimize large numbers of files using advanced algorithms.
 - **Download Optimized Files:** Retrieve all optimized assets in a single step.
 
-This tool is part of the BabylonPress.org suite, aiming to simplify 3D asset management and preparation for web and game projects.
+This tool is part of the [BabylonPress.org](https://babylonpress.org/) suite, aiming to simplify 3D asset management and preparation for web and game projects.
