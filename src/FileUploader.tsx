@@ -557,7 +557,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          <h2>GLB Batch Optimiizer</h2>
+          <h2>GLB Batch Optimizer</h2>
 
           <div className="upload-area">
             <p>Drag and drop .glb files here, or</p>
