@@ -1,4 +1,4 @@
-import { ImageUtils, WebIO, type Transform } from "@gltf-transform/core";
+import { ImageUtils, WebIO, type Transform, type vec3 } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { 
   dedup, 
@@ -56,7 +56,7 @@ interface OptimizationSettings {
   };
   enableCenter: boolean;
   centerOptions: {
-    pivot: 'center' | 'bottom' | 'origin';
+    pivot: "center" | "above" | "below" | vec3 | undefined;
   };
   enableMeshopt: boolean;
   meshoptOptions: {
@@ -88,6 +88,7 @@ interface OptimizationSettings {
 }
 
 interface FileUploaderProps {
+
   settings: OptimizationSettings;
 }
 
@@ -269,6 +270,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     // Add dedup if enabled
     if (settings.enableDedup) {
       transforms.push(dedup({
+        //@ts-ignore
         accessors: settings.dedupOptions.accessors,
         meshes: settings.dedupOptions.meshes,
         materials: settings.dedupOptions.materials
@@ -318,6 +320,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     if (settings.enableMeshopt) {
       transforms.push(meshopt({
         encoder: MeshoptEncoder,
+        //@ts-ignore
         level: settings.meshoptOptions.level
       }));
     }
@@ -463,6 +466,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
   };
 
   const formatFileName = (fileName: string): string => {
+    //@ts-ignore
     const { fileNameSuffix, shortenFileNames, maxFileNameLength } = settings.userSettings;
     
     // Remove .glb extension

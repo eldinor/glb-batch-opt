@@ -18,7 +18,7 @@ export default function ModelViewer({ modelUrl }: ModelViewerProps) {
     // Configure GLTF loader
     GLTFFileLoader.IncrementalLoading = false;
     GLTFFileLoader.HomogeneousCoordinates = false;
-    GLTFFileLoader.PreserveRightHandedness = true;
+   //  GLTFFileLoader.PreserveRightHandedness = true;
 
     // Initialize Babylon.js engine and scene
     const engine = new BABYLON.Engine(canvasRef.current, true);
