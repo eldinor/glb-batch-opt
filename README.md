@@ -1,54 +1,12 @@
-# React + TypeScript + Vite
+# GLB Batch Optimizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**GLB Batch Optimizer** is a web application designed to streamline and automate the optimization of multiple 3D model GLB files in batch. Built for users working with bunches of 3D assets — such as game developers, 3D artists, and digital content creators. The app provides an intuitive interface for uploading, processing, and downloading optimized GLB files.
 
-Currently, two official plugins are available:
+Key features include:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Batch Upload:** Easily upload multiple GLB files at once.
+- **Optimization Settings:** Customize optimization parameters to suit your workflow.
+- **Fast Processing:** Efficiently optimize large numbers of files using advanced algorithms.
+- **Download Optimized Files:** Retrieve all optimized assets in a single step.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+This tool is part of the BabylonPress.org suite, aiming to simplify 3D asset management and preparation for web and game projects.

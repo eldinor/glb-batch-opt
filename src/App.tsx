@@ -889,8 +889,13 @@ function App() {
       <div className="app-container with-settings">
         <FileUploader settings={settings} />
       </div>
+      
+      <footer className="app-footer">
+        <p>Created by <a href="https://babylonpress.org" target="_blank" rel="noopener noreferrer">BabylonPress.org</a></p>
+      </footer>
     </>
   );
 }
 
 export default App;
+
