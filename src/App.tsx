@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import FileUploader from "./FileUploader";
 
-interface OptimizationSettings {
+export interface OptimizationSettings {
   enableDedup: boolean;
   dedupOptions: {
     accessors: boolean;

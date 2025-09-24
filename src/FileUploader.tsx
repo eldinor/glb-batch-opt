@@ -22,6 +22,7 @@ import { MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier } from "meshoptimizer
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
 import JSZip from "jszip";
 import ModelViewer from "./ModelViewer";
+import type { OptimizationSettings } from "./App.tsx";
 
 interface FileProgress {
   name: string;
@@ -31,69 +32,6 @@ interface FileProgress {
   url?: string;
   originalSize?: number; // Size in bytes
   optimizedSize?: number; // Size in bytes
-}
-
-interface OptimizationSettings {
-  enableDedup: boolean;
-  dedupOptions: {
-    accessors: boolean;
-    meshes: boolean;
-    materials: boolean;
-  };
-  enableTextureCompression: boolean;
-  textureCompressionOptions: {
-    format: 'webp' | 'jpeg' | 'png';
-    quality: 'auto' | number;
-    resize: [number, number] | null;
-  };
-  enableFlatten: boolean;
-  enableJoin: boolean;
-  enableWeld: boolean;
-  enableSimplify: boolean;
-  simplifyOptions: {
-    ratio: number;
-    error: number;
-  };
-  enableCenter: boolean;
-  centerOptions: {
-    pivot: "center" | "bottom" | "origin";
-  };
-  enableMeshopt: boolean;
-  meshoptOptions: {
-    level: 'high' | 'medium' | 'low';
-  };
-  enablePrune: boolean;
-  pruneOptions: {
-    keepExtras: boolean;
-  };
-  enableQuantize: boolean;
-  enableResample: boolean;
-  enableInstance: boolean;
-  instanceOptions: {
-    min: number;
-  };
-  enableSparse: boolean;
-  sparseOptions: {
-    ratio: number;
-  };
-  enablePalette: boolean;
-  paletteOptions: {
-    min: number;
-  };
-  enableNormals: boolean;
-  normalsOptions: {
-    overwrite: boolean;
-  };
-  enableMetalRough: boolean;
-  enableMaterialsOptions: false,
-  materialsOptions: {
-    doubleSided: false,
-  },
-  userSettings: {
-    fileNameSuffix: string;
-    maxFileNameLength: number;
-    shortenFileNames: boolean;
-  };
 }
 
 interface FileUploaderProps {
