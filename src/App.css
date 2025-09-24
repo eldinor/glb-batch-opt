@@ -79,6 +79,10 @@ body {
   margin-top: 0; /* Remove top margin from first setting group */
 }
 
+.setting-group:last-child {
+    margin-bottom: 0; /* Remove bottom margin from last setting group */
+}
+
 .setting-group-title {
   font-weight: bold;
   margin-bottom: 10px;
