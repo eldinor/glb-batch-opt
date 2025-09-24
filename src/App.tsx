@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import FileUploader from "./FileUploader";
+import { lazyToggleTheme } from "./utilities.ts";
 
 export interface OptimizationSettings {
   enableDedup: boolean;
@@ -294,6 +295,10 @@ function App() {
           <div className="user-settings">
             <button className="settings-toggle-btn" onClick={() => setShowUserSettings((prev) => !prev)}>
               User Settings
+            </button>
+
+            <button className="settings-toggle-btn" style={{marginLeft: 10 }} onClick={lazyToggleTheme}>
+              Theme
             </button>
 
             {showUserSettings && (
