@@ -58,7 +58,7 @@ body {
   z-index: 100;
   box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 100px);
   transform: translateX(0); /* Always visible */
 }
 
