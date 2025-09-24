@@ -328,7 +328,7 @@ function App() {
     }));
   };
 
-  const handleMaterialsOptionChange = (option: keyof OptimizationSettings["materialOptions"], value: boolean) => {
+  const handleMaterialsOptionChange = (option: keyof OptimizationSettings["materialsOptions"], value: boolean) => {
     setSettings((prev) => ({
       ...prev,
       materialsOptions: {
