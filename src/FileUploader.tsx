@@ -85,6 +85,10 @@ interface OptimizationSettings {
     overwrite: boolean;
   };
   enableMetalRough: boolean;
+  enableMaterialsOptions: false,
+  materialsOptions: {
+    doubleSided: false,
+  },
   userSettings: {
     fileNameSuffix: string;
     maxFileNameLength: number;
@@ -372,6 +376,13 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     // Add metalRough if enabled
     if (settings.enableMetalRough) {
       transforms.push(metalRough());
+    }
+
+    // Add materialsOptions if enabled
+    if (settings.enableMaterialsOptions) {
+      doc.getRoot().listMaterials().forEach((material) => {
+        material.setDoubleSided(settings.materialsOptions.doubleSided);
+      });
     }
     
     // Apply all transforms

@@ -54,6 +54,10 @@ interface OptimizationSettings {
     overwrite: boolean;
   };
   enableMetalRough: boolean;
+  enableMaterialsOptions: boolean;
+  materialsOptions: {
+    doubleSided: boolean;
+  }
   userSettings: {
     fileNameSuffix: string;
     maxFileNameLength: number;
@@ -126,6 +130,10 @@ function App() {
         overwrite: true,
       },
       enableMetalRough: false,
+      enableMaterialsOptions: false,
+      materialsOptions: {
+        doubleSided: false,
+      },
       userSettings: {
         fileNameSuffix: "_optimized",
         maxFileNameLength: 20,
@@ -195,6 +203,10 @@ function App() {
         overwrite: true,
       },
       enableMetalRough: false,
+      enableMaterialsOptions: false,
+      materialsOptions: {
+        doubleSided: false,
+      },
       userSettings: {
         fileNameSuffix: "_optimized",
         maxFileNameLength: 20,
@@ -311,6 +323,16 @@ function App() {
       ...prev,
       normalsOptions: {
         ...prev.normalsOptions,
+        [option]: value,
+      },
+    }));
+  };
+
+  const handleMaterialsOptionChange = (option: keyof OptimizationSettings["materialOptions"], value: boolean) => {
+    setSettings((prev) => ({
+      ...prev,
+      materialsOptions: {
+        ...prev.materialsOptions,
         [option]: value,
       },
     }));
@@ -884,6 +906,33 @@ function App() {
             <label htmlFor="metal-rough-toggle">Convert to Metal-Rough</label>
           </div>
         </div>
+
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enableMaterialsOptions}
+              onChange={(e) => handleSettingChange("enableMaterialsOptions", e.target.checked)}
+              id="materials-options-toggle"
+            />
+            <label htmlFor="materials-options-toggle">Materials Options</label>
+          </div>
+
+          {settings.enableMaterialsOptions && (
+            <div className="setting-options">
+              <div className="setting-option">
+                <input
+                  type="checkbox"
+                  checked={settings.materialsOptions.doubleSided}
+                  onChange={(e) => handleMaterialsOptionChange("doubleSided", e.target.checked)}
+                  id="materials-doubleSided-toggle"
+                />
+                <label htmlFor="materials-doubleSided-toggle">doubleSided</label>
+              </div>
+            </div>
+          )}
+        </div>
+
       </div>
 
       <div className="app-container with-settings">
