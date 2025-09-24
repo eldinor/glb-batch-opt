@@ -65,6 +65,69 @@ export interface OptimizationSettings {
   };
 }
 
+const defaultSettings: OptimizationSettings = {
+    enableDedup: true,
+    dedupOptions: {
+        accessors: true,
+        meshes: true,
+        materials: true,
+    },
+    enableTextureCompression: true,
+    textureCompressionOptions: {
+        format: "webp",
+        quality: "auto",
+        resize: [1024, 1024],
+    },
+    enableFlatten: true,
+    enableJoin: true,
+    enableWeld: true,
+    enableSimplify: false, // Changed from true to false
+    simplifyOptions: {
+        ratio: 0.75,
+        error: 0.01,
+    },
+    enableCenter: false,
+    centerOptions: {
+        pivot: "center",
+    },
+    enableMeshopt: false,
+    meshoptOptions: {
+        level: "medium",
+    },
+    enablePrune: true,
+    pruneOptions: {
+        keepExtras: true,
+    },
+    enableQuantize: false,
+    enableResample: false,
+    enableInstance: false,
+    instanceOptions: {
+        min: 5,
+    },
+    enableSparse: false,
+    sparseOptions: {
+        ratio: 0.1,
+    },
+    enablePalette: false,
+    paletteOptions: {
+        min: 3,
+    },
+    enableNormals: false,
+    normalsOptions: {
+        overwrite: true,
+    },
+    enableMetalRough: false,
+    enableMaterialsOptions: false,
+    materialsOptions: {
+        doubleSided: false,
+    },
+    userSettings: {
+        fileNameSuffix: "_optimized",
+        maxFileNameLength: 20,
+        shortenFileNames: false,
+    }
+};
+
 function App() {
   const [settings, setSettings] = useState<OptimizationSettings>(() => {
     // Try to load settings from localStorage
@@ -78,68 +141,7 @@ function App() {
     }
 
     // Return default settings if no saved settings exist or parsing failed
-    return {
-      enableDedup: true,
-      dedupOptions: {
-        accessors: true,
-        meshes: true,
-        materials: true,
-      },
-      enableTextureCompression: true,
-      textureCompressionOptions: {
-        format: "webp",
-        quality: "auto",
-        resize: [1024, 1024],
-      },
-      enableFlatten: true,
-      enableJoin: true,
-      enableWeld: true,
-      enableSimplify: false, // Changed from true to false
-      simplifyOptions: {
-        ratio: 0.75,
-        error: 0.01,
-      },
-      enableCenter: false,
-      centerOptions: {
-        pivot: "center",
-      },
-      enableMeshopt: false,
-      meshoptOptions: {
-        level: "medium",
-      },
-      enablePrune: true,
-      pruneOptions: {
-        keepExtras: true,
-      },
-      enableQuantize: false,
-      enableResample: false,
-      enableInstance: false,
-      instanceOptions: {
-        min: 5,
-      },
-      enableSparse: false,
-      sparseOptions: {
-        ratio: 0.1,
-      },
-      enablePalette: false,
-      paletteOptions: {
-        min: 3,
-      },
-      enableNormals: false,
-      normalsOptions: {
-        overwrite: true,
-      },
-      enableMetalRough: false,
-      enableMaterialsOptions: false,
-      materialsOptions: {
-        doubleSided: false,
-      },
-      userSettings: {
-        fileNameSuffix: "_optimized",
-        maxFileNameLength: 20,
-        shortenFileNames: false,
-      },
-    };
+    return defaultSettings;
   });
 
   const [showUserSettings, setShowUserSettings] = useState(false);
@@ -151,69 +153,6 @@ function App() {
 
   // Add a function to reset settings to defaults
   const resetSettings = () => {
-    const defaultSettings: OptimizationSettings = {
-      enableDedup: true,
-      dedupOptions: {
-        accessors: true,
-        meshes: true,
-        materials: true,
-      },
-      enableTextureCompression: true,
-      textureCompressionOptions: {
-        format: "webp",
-        quality: "auto",
-        resize: [1024, 1024],
-      },
-      enableFlatten: true,
-      enableJoin: true,
-      enableWeld: true,
-      enableSimplify: false, // Changed from true to false
-      simplifyOptions: {
-        ratio: 0.75,
-        error: 0.01,
-      },
-      enableCenter: false,
-      centerOptions: {
-        pivot: "center",
-      },
-      enableMeshopt: false,
-      meshoptOptions: {
-        level: "medium",
-      },
-      enablePrune: true,
-      pruneOptions: {
-        keepExtras: true,
-      },
-      enableQuantize: false,
-      enableResample: false,
-      enableInstance: false,
-      instanceOptions: {
-        min: 5,
-      },
-      enableSparse: false,
-      sparseOptions: {
-        ratio: 0.1,
-      },
-      enablePalette: false,
-      paletteOptions: {
-        min: 3,
-      },
-      enableNormals: false,
-      normalsOptions: {
-        overwrite: true,
-      },
-      enableMetalRough: false,
-      enableMaterialsOptions: false,
-      materialsOptions: {
-        doubleSided: false,
-      },
-      userSettings: {
-        fileNameSuffix: "_optimized",
-        maxFileNameLength: 20,
-        shortenFileNames: false,
-      },
-    };
-
     setSettings(defaultSettings);
     localStorage.setItem("optimizationSettings", JSON.stringify(defaultSettings));
   };
