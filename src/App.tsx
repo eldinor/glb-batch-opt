@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import FileUploader from "./FileUploader";
 
-interface OptimizationSettings {
+export interface OptimizationSettings {
   enableDedup: boolean;
   dedupOptions: {
     accessors: boolean;
@@ -54,12 +54,79 @@ interface OptimizationSettings {
     overwrite: boolean;
   };
   enableMetalRough: boolean;
+  enableMaterialsOptions: boolean;
+  materialsOptions: {
+    doubleSided: boolean;
+  }
   userSettings: {
     fileNameSuffix: string;
     maxFileNameLength: number;
     shortenFileNames: boolean;
   };
 }
+
+const defaultSettings: OptimizationSettings = {
+    enableDedup: true,
+    dedupOptions: {
+        accessors: true,
+        meshes: true,
+        materials: true,
+    },
+    enableTextureCompression: true,
+    textureCompressionOptions: {
+        format: "webp",
+        quality: "auto",
+        resize: [1024, 1024],
+    },
+    enableFlatten: true,
+    enableJoin: true,
+    enableWeld: true,
+    enableSimplify: false, // Changed from true to false
+    simplifyOptions: {
+        ratio: 0.75,
+        error: 0.01,
+    },
+    enableCenter: false,
+    centerOptions: {
+        pivot: "center",
+    },
+    enableMeshopt: false,
+    meshoptOptions: {
+        level: "medium",
+    },
+    enablePrune: true,
+    pruneOptions: {
+        keepExtras: true,
+    },
+    enableQuantize: false,
+    enableResample: false,
+    enableInstance: false,
+    instanceOptions: {
+        min: 5,
+    },
+    enableSparse: false,
+    sparseOptions: {
+        ratio: 0.1,
+    },
+    enablePalette: false,
+    paletteOptions: {
+        min: 3,
+    },
+    enableNormals: false,
+    normalsOptions: {
+        overwrite: true,
+    },
+    enableMetalRough: false,
+    enableMaterialsOptions: false,
+    materialsOptions: {
+        doubleSided: false,
+    },
+    userSettings: {
+        fileNameSuffix: "_optimized",
+        maxFileNameLength: 20,
+        shortenFileNames: false,
+    }
+};
 
 function App() {
   const [settings, setSettings] = useState<OptimizationSettings>(() => {
@@ -74,64 +141,7 @@ function App() {
     }
 
     // Return default settings if no saved settings exist or parsing failed
-    return {
-      enableDedup: true,
-      dedupOptions: {
-        accessors: true,
-        meshes: true,
-        materials: true,
-      },
-      enableTextureCompression: true,
-      textureCompressionOptions: {
-        format: "webp",
-        quality: "auto",
-        resize: [1024, 1024],
-      },
-      enableFlatten: true,
-      enableJoin: true,
-      enableWeld: true,
-      enableSimplify: false, // Changed from true to false
-      simplifyOptions: {
-        ratio: 0.75,
-        error: 0.01,
-      },
-      enableCenter: false,
-      centerOptions: {
-        pivot: "center",
-      },
-      enableMeshopt: false,
-      meshoptOptions: {
-        level: "medium",
-      },
-      enablePrune: true,
-      pruneOptions: {
-        keepExtras: true,
-      },
-      enableQuantize: false,
-      enableResample: false,
-      enableInstance: false,
-      instanceOptions: {
-        min: 5,
-      },
-      enableSparse: false,
-      sparseOptions: {
-        ratio: 0.1,
-      },
-      enablePalette: false,
-      paletteOptions: {
-        min: 3,
-      },
-      enableNormals: false,
-      normalsOptions: {
-        overwrite: true,
-      },
-      enableMetalRough: false,
-      userSettings: {
-        fileNameSuffix: "_optimized",
-        maxFileNameLength: 20,
-        shortenFileNames: false,
-      },
-    };
+    return defaultSettings;
   });
 
   const [showUserSettings, setShowUserSettings] = useState(false);
@@ -143,65 +153,6 @@ function App() {
 
   // Add a function to reset settings to defaults
   const resetSettings = () => {
-    const defaultSettings: OptimizationSettings = {
-      enableDedup: true,
-      dedupOptions: {
-        accessors: true,
-        meshes: true,
-        materials: true,
-      },
-      enableTextureCompression: true,
-      textureCompressionOptions: {
-        format: "webp",
-        quality: "auto",
-        resize: [1024, 1024],
-      },
-      enableFlatten: true,
-      enableJoin: true,
-      enableWeld: true,
-      enableSimplify: false, // Changed from true to false
-      simplifyOptions: {
-        ratio: 0.75,
-        error: 0.01,
-      },
-      enableCenter: false,
-      centerOptions: {
-        pivot: "center",
-      },
-      enableMeshopt: false,
-      meshoptOptions: {
-        level: "medium",
-      },
-      enablePrune: true,
-      pruneOptions: {
-        keepExtras: true,
-      },
-      enableQuantize: false,
-      enableResample: false,
-      enableInstance: false,
-      instanceOptions: {
-        min: 5,
-      },
-      enableSparse: false,
-      sparseOptions: {
-        ratio: 0.1,
-      },
-      enablePalette: false,
-      paletteOptions: {
-        min: 3,
-      },
-      enableNormals: false,
-      normalsOptions: {
-        overwrite: true,
-      },
-      enableMetalRough: false,
-      userSettings: {
-        fileNameSuffix: "_optimized",
-        maxFileNameLength: 20,
-        shortenFileNames: false,
-      },
-    };
-
     setSettings(defaultSettings);
     localStorage.setItem("optimizationSettings", JSON.stringify(defaultSettings));
   };
@@ -311,6 +262,16 @@ function App() {
       ...prev,
       normalsOptions: {
         ...prev.normalsOptions,
+        [option]: value,
+      },
+    }));
+  };
+
+  const handleMaterialsOptionChange = (option: keyof OptimizationSettings["materialsOptions"], value: boolean) => {
+    setSettings((prev) => ({
+      ...prev,
+      materialsOptions: {
+        ...prev.materialsOptions,
         [option]: value,
       },
     }));
@@ -884,6 +845,33 @@ function App() {
             <label htmlFor="metal-rough-toggle">Convert to Metal-Rough</label>
           </div>
         </div>
+
+        <div className="setting-group">
+          <div className="setting-group-title">
+            <input
+              type="checkbox"
+              checked={settings.enableMaterialsOptions}
+              onChange={(e) => handleSettingChange("enableMaterialsOptions", e.target.checked)}
+              id="materials-options-toggle"
+            />
+            <label htmlFor="materials-options-toggle">Materials Options</label>
+          </div>
+
+          {settings.enableMaterialsOptions && (
+            <div className="setting-options">
+              <div className="setting-option">
+                <input
+                  type="checkbox"
+                  checked={settings.materialsOptions.doubleSided}
+                  onChange={(e) => handleMaterialsOptionChange("doubleSided", e.target.checked)}
+                  id="materials-doubleSided-toggle"
+                />
+                <label htmlFor="materials-doubleSided-toggle">doubleSided</label>
+              </div>
+            </div>
+          )}
+        </div>
+
       </div>
 
       <div className="app-container with-settings">

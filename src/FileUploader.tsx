@@ -22,6 +22,7 @@ import { MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier } from "meshoptimizer
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
 import JSZip from "jszip";
 import ModelViewer from "./ModelViewer";
+import type { OptimizationSettings } from "./App.tsx";
 
 interface FileProgress {
   name: string;
@@ -31,65 +32,6 @@ interface FileProgress {
   url?: string;
   originalSize?: number; // Size in bytes
   optimizedSize?: number; // Size in bytes
-}
-
-interface OptimizationSettings {
-  enableDedup: boolean;
-  dedupOptions: {
-    accessors: boolean;
-    meshes: boolean;
-    materials: boolean;
-  };
-  enableTextureCompression: boolean;
-  textureCompressionOptions: {
-    format: 'webp' | 'jpeg' | 'png';
-    quality: 'auto' | number;
-    resize: [number, number] | null;
-  };
-  enableFlatten: boolean;
-  enableJoin: boolean;
-  enableWeld: boolean;
-  enableSimplify: boolean;
-  simplifyOptions: {
-    ratio: number;
-    error: number;
-  };
-  enableCenter: boolean;
-  centerOptions: {
-    pivot: "center" | "bottom" | "origin";
-  };
-  enableMeshopt: boolean;
-  meshoptOptions: {
-    level: 'high' | 'medium' | 'low';
-  };
-  enablePrune: boolean;
-  pruneOptions: {
-    keepExtras: boolean;
-  };
-  enableQuantize: boolean;
-  enableResample: boolean;
-  enableInstance: boolean;
-  instanceOptions: {
-    min: number;
-  };
-  enableSparse: boolean;
-  sparseOptions: {
-    ratio: number;
-  };
-  enablePalette: boolean;
-  paletteOptions: {
-    min: number;
-  };
-  enableNormals: boolean;
-  normalsOptions: {
-    overwrite: boolean;
-  };
-  enableMetalRough: boolean;
-  userSettings: {
-    fileNameSuffix: string;
-    maxFileNameLength: number;
-    shortenFileNames: boolean;
-  };
 }
 
 interface FileUploaderProps {
@@ -372,6 +314,13 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     // Add metalRough if enabled
     if (settings.enableMetalRough) {
       transforms.push(metalRough());
+    }
+
+    // Add materialsOptions if enabled
+    if (settings.enableMaterialsOptions) {
+      doc.getRoot().listMaterials().forEach((material) => {
+        material.setDoubleSided(settings.materialsOptions.doubleSided);
+      });
     }
     
     // Apply all transforms
