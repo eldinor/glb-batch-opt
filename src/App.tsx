@@ -293,11 +293,11 @@ function App() {
       <header className="app-header">
         <div className="header-controls">
           <div className="user-settings">
-            <button className="settings-toggle-btn" onClick={() => setShowUserSettings((prev) => !prev)}>
+            <button onClick={() => setShowUserSettings((prev) => !prev)}>
               User Settings
             </button>
 
-            <button className="settings-toggle-btn" style={{ marginLeft: 10 }} onClick={lazyToggleTheme}>
+            <button style={{ marginLeft: 10 }} onClick={lazyToggleTheme}>
               Theme
             </button>
 

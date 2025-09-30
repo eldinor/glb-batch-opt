@@ -16,6 +16,58 @@ body {
   overflow: hidden;
 }
 
+label,
+button,
+input {
+    cursor: pointer;
+    user-select: none;
+}
+
+button {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+}
+
+button:hover {
+    background-color: #e0e0e0;
+}
+
+button.primary {
+    background-color: #646cff;
+    color: white;
+    padding: 8px 16px;
+    font-size: 1rem;
+}
+
+button.primary:hover {
+    background-color: #535bf2;
+}
+
+button.small {
+    background-color: #e0e0e0;
+    border: none;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+}
+
+button.danger {
+    background-color: #f44336;
+    color: white;
+}
+
+button.danger:hover {
+    background-color: #d32f2f;
+}
+
+button.danger:disabled {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+    cursor: not-allowed;
+}
+
 .app-container {
   display: flex;
   width: 100%;
@@ -162,31 +214,6 @@ body {
   flex: 1; /* Make it grow to fill available space */
 }
 
-/* Button styles */
-.btn {
-  background-color: #e0e0e0;
-  color: #333;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
-}
-
-.btn:hover {
-  background-color: #d0d0d0;
-}
-
-.btn-primary {
-  background-color: #646cff;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #535bf2;
-}
-
 /* Add these styles for the new layout */
 .app-container {
   display: flex;
@@ -199,6 +226,10 @@ body {
   flex: 0 0 250px; /* Fixed width */
   max-width: 250px;
   min-width: 250px;
+}
+
+.file-uploader-container.dragging * {
+  pointer-events: none;
 }
 
 .model-viewer-container {
@@ -282,34 +313,20 @@ body {
   background-color: #ffebee;
 }
 
-.file-uploader.dragging {
-  border: 2px dashed #646cff;
-  background-color: rgba(100, 108, 255, 0.1);
-}
-
 .upload-area {
   padding: 20px;
-  border: 1px dashed #aaa;
+  border: 2px dashed #aaa;
   border-radius: 4px;
   margin-bottom: 20px;
 }
 
+.upload-area.dragging {
+    border: 2px dashed #646cff;
+    background-color: rgba(100, 108, 255, 0.1);
+}
+
 .file-input {
   display: none;
-}
-
-.file-input-label {
-  display: inline-block;
-  padding: 8px 16px;
-  background-color: #646cff;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  margin: 10px 0;
-}
-
-.file-input-label:hover {
-  background-color: #535bf2;
 }
 
 .file-type-hint {
@@ -474,19 +491,6 @@ body {
   position: relative;
 }
 
-.settings-toggle-btn {
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.settings-toggle-btn:hover {
-  background-color: #e0e0e0;
-}
-
 .user-settings-dropdown {
   position: absolute;
   top: 100%;
@@ -580,26 +584,6 @@ body {
 .file-list-actions {
   display: flex;
   gap: 8px;
-}
-
-.btn-small {
-  padding: 4px 8px;
-  font-size: 0.8rem;
-}
-
-.btn-danger {
-  background-color: #f44336;
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: #d32f2f;
-}
-
-.btn-danger:disabled {
-  background-color: #ffcdd2;
-  color: #b71c1c;
-  cursor: not-allowed;
 }
 
 .app-footer {
