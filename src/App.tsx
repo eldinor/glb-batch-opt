@@ -297,7 +297,7 @@ function App() {
               User Settings
             </button>
 
-            <button className="settings-toggle-btn" style={{marginLeft: 10 }} onClick={lazyToggleTheme}>
+            <button className="settings-toggle-btn" style={{ marginLeft: 10 }} onClick={lazyToggleTheme}>
               Theme
             </button>
 
