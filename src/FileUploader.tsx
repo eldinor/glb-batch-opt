@@ -16,7 +16,7 @@ import {
   sparse,
   palette,
   normals,
-  metalRough
+  metalRough,
 } from "@gltf-transform/functions";
 import { MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier } from "meshoptimizer";
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
@@ -50,7 +50,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
   useEffect(() => {
     // Only set the selected model if there isn't one already
     if (!selectedModel) {
-      const completedFile = files.find(file => file.status === "completed" && file.url);
+      const completedFile = files.find((file) => file.status === "completed" && file.url);
       if (completedFile && completedFile.url) {
         setSelectedModel(completedFile.url);
       }
@@ -104,7 +104,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
               ...updated[index],
               status: "completed",
               url: result.url,
-              optimizedSize: result.size
+              optimizedSize: result.size,
             };
           }
           return updated;
@@ -171,7 +171,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     });
   };
 
-  const processGLB = async (uint8Array: Uint8Array): Promise<{url: string, size: number}> => {
+  const processGLB = async (uint8Array: Uint8Array): Promise<{ url: string; size: number }> => {
     let totalVRAM = 0;
 
     // Initialize MeshoptEncoder
@@ -201,33 +201,41 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
     // Add prune if enabled
     if (settings.enablePrune) {
-      transforms.push(prune({
-        keepExtras: settings.pruneOptions.keepExtras
-      }));
+      transforms.push(
+        prune({
+          keepExtras: settings.pruneOptions.keepExtras,
+        })
+      );
     }
 
     // Add instance if enabled
     if (settings.enableInstance) {
-      transforms.push(instance({
-        min: settings.instanceOptions.min
-      }));
+      transforms.push(
+        instance({
+          min: settings.instanceOptions.min,
+        })
+      );
     }
 
     // Add dedup if enabled
     if (settings.enableDedup) {
-      transforms.push(dedup({
-        //@ts-ignore
-        accessors: settings.dedupOptions.accessors,
-        meshes: settings.dedupOptions.meshes,
-        materials: settings.dedupOptions.materials
-      }));
+      transforms.push(
+        dedup({
+          //@ts-ignore
+          accessors: settings.dedupOptions.accessors,
+          meshes: settings.dedupOptions.meshes,
+          materials: settings.dedupOptions.materials,
+        })
+      );
     }
 
     // Add palette if enabled
     if (settings.enablePalette) {
-      transforms.push(palette({
-        min: settings.paletteOptions.min
-      }));
+      transforms.push(
+        palette({
+          min: settings.paletteOptions.min,
+        })
+      );
     }
 
     // Add flatten if enabled
@@ -247,11 +255,11 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
     // Add center if enabled
     if (settings.enableCenter) {
-      transforms.push(center({
-        pivot: settings.centerOptions.pivot === "bottom" ? "below" :
-               settings.centerOptions.pivot === "origin" ? [0, 0, 0] as vec3 :
-               settings.centerOptions.pivot
-      }));
+      transforms.push(
+        center({
+          pivot: settings.centerOptions.pivot === "bottom" ? "below" : settings.centerOptions.pivot === "origin" ? ([0, 0, 0] as vec3) : settings.centerOptions.pivot,
+        })
+      );
     }
 
     // Add quantize if enabled
@@ -266,31 +274,35 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
     // Add meshopt if enabled
     if (settings.enableMeshopt) {
-      transforms.push(meshopt({
-        encoder: MeshoptEncoder,
-        //@ts-ignore
-        level: settings.meshoptOptions.level
-      }));
+      transforms.push(
+        meshopt({
+          encoder: MeshoptEncoder,
+          //@ts-ignore
+          level: settings.meshoptOptions.level,
+        })
+      );
     }
 
     // Add simplify if enabled
     if (settings.enableSimplify) {
-      transforms.push(simplify({
-        simplifier: MeshoptSimplifier,
-        ratio: settings.simplifyOptions.ratio,
-        error: settings.simplifyOptions.error
-      }));
+      transforms.push(
+        simplify({
+          simplifier: MeshoptSimplifier,
+          ratio: settings.simplifyOptions.ratio,
+          error: settings.simplifyOptions.error,
+        })
+      );
     }
 
     // Add texture compression if enabled
     if (settings.enableTextureCompression) {
       const compressionOptions: any = {
         targetFormat: settings.textureCompressionOptions.format,
-        resize: settings.textureCompressionOptions.resize
+        resize: settings.textureCompressionOptions.resize,
       };
 
       // Only set quality if it's not 'auto'
-      if (settings.textureCompressionOptions.quality !== 'auto') {
+      if (settings.textureCompressionOptions.quality !== "auto") {
         compressionOptions.quality = settings.textureCompressionOptions.quality;
       }
 
@@ -299,16 +311,20 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
     // Add sparse if enabled
     if (settings.enableSparse) {
-      transforms.push(sparse({
-        ratio: settings.sparseOptions.ratio
-      }));
+      transforms.push(
+        sparse({
+          ratio: settings.sparseOptions.ratio,
+        })
+      );
     }
 
     // Add normals if enabled
     if (settings.enableNormals) {
-      transforms.push(normals({
-        overwrite: settings.normalsOptions.overwrite
-      }));
+      transforms.push(
+        normals({
+          overwrite: settings.normalsOptions.overwrite,
+        })
+      );
     }
 
     // Add metalRough if enabled
@@ -318,9 +334,12 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
     // Add materialsOptions if enabled
     if (settings.enableMaterialsOptions) {
-      doc.getRoot().listMaterials().forEach((material) => {
-        material.setDoubleSided(settings.materialsOptions.doubleSided);
-      });
+      doc
+        .getRoot()
+        .listMaterials()
+        .forEach((material) => {
+          material.setDoubleSided(settings.materialsOptions.doubleSided);
+        });
     }
 
     // Apply all transforms
@@ -337,19 +356,18 @@ export default function FileUploader({ settings }: FileUploaderProps) {
           finalVRAM += vram!;
         });
       console.log("Final VRAM usage:", finalVRAM);
-      console.log("VRAM reduction:", totalVRAM - finalVRAM, "bytes (",
-        ((totalVRAM - finalVRAM) / totalVRAM * 100).toFixed(2), "%)");
+      console.log("VRAM reduction:", totalVRAM - finalVRAM, "bytes (", (((totalVRAM - finalVRAM) / totalVRAM) * 100).toFixed(2), "%)");
     }
 
     // Output optimized GLB
     const glb = await io.writeBinary(doc);
 
     // Create blob with proper MIME type
-    const assetBlob = new Blob([glb], { type: 'model/gltf-binary' });
+    const assetBlob = new Blob([glb], { type: "model/gltf-binary" });
     const assetUrl = URL.createObjectURL(assetBlob);
 
     console.log("Created asset URL:", assetUrl);
-    return {url: assetUrl, size: glb.byteLength};
+    return { url: assetUrl, size: glb.byteLength };
   };
 
   const handleModelSelect = (url: string) => {
@@ -357,7 +375,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
   };
 
   const handleDownloadZip = async () => {
-    const completedFiles = files.filter(file => file.status === "completed");
+    const completedFiles = files.filter((file) => file.status === "completed");
 
     if (completedFiles.length === 0) {
       alert("No processed files to download");
@@ -410,7 +428,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     e.stopPropagation(); // Prevent triggering the file selection
 
     // Create a temporary anchor element
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = formatFileName(fileName);
 
@@ -425,7 +443,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     const { fileNameSuffix, shortenFileNames, maxFileNameLength } = settings.userSettings;
 
     // Remove .glb extension
-    let baseName = fileName.replace('.glb', '');
+    let baseName = fileName.replace(".glb", "");
 
     // Shorten if needed
     if (shortenFileNames && baseName.length > maxFileNameLength) {
@@ -448,7 +466,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     }
 
     // Remove the file from the list
-    setFiles(prev => {
+    setFiles((prev) => {
       const updated = [...prev];
       updated.splice(index, 1);
       return updated;
@@ -462,7 +480,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
   const handleClearAllFiles = () => {
     // Revoke all object URLs to prevent memory leaks
-    files.forEach(file => {
+    files.forEach((file) => {
       if (file.url) {
         URL.revokeObjectURL(file.url);
       }
@@ -480,8 +498,8 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     if (fileName.length <= maxLength) return fileName;
 
     // Get file extension
-    const lastDotIndex = fileName.lastIndexOf('.');
-    const extension = lastDotIndex !== -1 ? fileName.substring(lastDotIndex) : '';
+    const lastDotIndex = fileName.lastIndexOf(".");
+    const extension = lastDotIndex !== -1 ? fileName.substring(lastDotIndex) : "";
 
     // Calculate how much of the name we can show
     const nameWithoutExtension = fileName.substring(0, lastDotIndex !== -1 ? lastDotIndex : fileName.length);
@@ -489,11 +507,11 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
     if (maxNameLength <= 0) {
       // If the extension is too long, just truncate the whole thing
-      return fileName.substring(0, maxLength - 3) + '...';
+      return fileName.substring(0, maxLength - 3) + "...";
     }
 
     // Return truncated name with ellipsis and extension
-    return nameWithoutExtension.substring(0, maxNameLength) + '...' + extension;
+    return nameWithoutExtension.substring(0, maxNameLength) + "..." + extension;
   };
 
   return (
@@ -510,17 +528,13 @@ export default function FileUploader({ settings }: FileUploaderProps) {
           <h2>GLB Batch Optimizer</h2>
           <div className={`upload-area ${isDragging ? "dragging" : ""}`}>
             <p>Drag and drop .glb files here, or</p>
-            <input
-              type="file"
-              multiple
-              accept=".glb"
-              onChange={handleFileChange}
-              disabled={isProcessing}
-              ref={fileInputRef}
-              id="file-input"
-              className="file-input"
-            />
-            <button className="primary" onClick={() => {fileInputRef.current?.click();}}>
+            <input type="file" multiple accept=".glb" onChange={handleFileChange} disabled={isProcessing} ref={fileInputRef} id="file-input" className="file-input" />
+            <button
+              className="primary"
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
+            >
               Select Files
             </button>
             <p className="file-type-hint">Only .glb files are accepted</p>
@@ -531,18 +545,10 @@ export default function FileUploader({ settings }: FileUploaderProps) {
               <div className="file-list-header">
                 <h3>Files:</h3>
                 <div className="file-list-actions">
-                  <button
-                    className="small danger"
-                    onClick={handleClearAllFiles}
-                    disabled={files.length === 0}
-                  >
+                  <button className="small danger" onClick={handleClearAllFiles} disabled={files.length === 0}>
                     Clear All
                   </button>
-                  <button
-                    className="small"
-                    onClick={handleDownloadZip}
-                    disabled={isZipping || files.filter(f => f.status === "completed").length === 0}
-                  >
+                  <button className="small" onClick={handleDownloadZip} disabled={isZipping || files.filter((f) => f.status === "completed").length === 0}>
                     {isZipping ? "Creating Zip..." : "Download as Zip"}
                   </button>
                 </div>
@@ -551,7 +557,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
                 {files.map((file, index) => (
                   <li
                     key={index}
-                    className={`file-item status-${file.status} ${file.url === selectedModel ? 'selected' : ''}`}
+                    className={`file-item status-${file.status} ${file.url === selectedModel ? "selected" : ""}`}
                     onClick={() => file.url && handleModelSelect(file.url)}
                   >
                     <div className="file-item-header">
@@ -560,11 +566,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
                       </span>
                       <div className="file-actions">
                         {file.status === "completed" && file.url && (
-                          <button
-                            className="download-btn"
-                            onClick={(e) => handleDownloadFile(file.url!, file.name, e)}
-                            title="Download optimized GLB"
-                          >
+                          <button className="download-btn" onClick={(e) => handleDownloadFile(file.url!, file.name, e)} title="Download optimized GLB">
                             ↓
                           </button>
                         )}
@@ -584,16 +586,12 @@ export default function FileUploader({ settings }: FileUploaderProps) {
                             <br />
                             Optimized: {(file.optimizedSize / (1024 * 1024)).toFixed(2)} MB
                             <br />
-                            Reduction: {((file.originalSize - file.optimizedSize) / file.originalSize * 100).toFixed(1)}%
+                            Reduction: {(((file.originalSize - file.optimizedSize) / file.originalSize) * 100).toFixed(1)}%
                           </>
                         )}
                       </span>
                     )}
-                    <button
-                      className="remove-btn corner-btn"
-                      onClick={(e) => handleRemoveFile(index, e)}
-                      title="Remove file"
-                    >
+                    <button className="remove-btn corner-btn" onClick={(e) => handleRemoveFile(index, e)} title="Remove file">
                       ×
                     </button>
                   </li>
@@ -616,20 +614,3 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

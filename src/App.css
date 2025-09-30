@@ -19,53 +19,53 @@ body {
 label,
 button,
 input {
-    cursor: pointer;
-    user-select: none;
+  cursor: pointer;
+  user-select: none;
 }
 
 button {
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 6px 12px;
-    font-size: 0.9rem;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
 }
 
 button:hover {
-    background-color: #e0e0e0;
+  background-color: #e0e0e0;
 }
 
 button.primary {
-    background-color: #646cff;
-    color: white;
-    padding: 8px 16px;
-    font-size: 1rem;
+  background-color: #646cff;
+  color: white;
+  padding: 8px 16px;
+  font-size: 1rem;
 }
 
 button.primary:hover {
-    background-color: #535bf2;
+  background-color: #535bf2;
 }
 
 button.small {
-    background-color: #e0e0e0;
-    border: none;
-    padding: 4px 8px;
-    font-size: 0.8rem;
+  background-color: #e0e0e0;
+  border: none;
+  padding: 4px 8px;
+  font-size: 0.8rem;
 }
 
 button.danger {
-    background-color: #f44336;
-    color: white;
+  background-color: #f44336;
+  color: white;
 }
 
 button.danger:hover {
-    background-color: #d32f2f;
+  background-color: #d32f2f;
 }
 
 button.danger:disabled {
-    background-color: #ffcdd2;
-    color: #b71c1c;
-    cursor: not-allowed;
+  background-color: #ffcdd2;
+  color: #b71c1c;
+  cursor: not-allowed;
 }
 
 .app-container {
@@ -132,7 +132,7 @@ button.danger:disabled {
 }
 
 .setting-group:last-child {
-    margin-bottom: 0; /* Remove bottom margin from last setting group */
+  margin-bottom: 0; /* Remove bottom margin from last setting group */
 }
 
 .setting-group-title {
@@ -291,7 +291,9 @@ button.danger:disabled {
   background-color: rgba(255, 255, 255, 0.8);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   opacity: 0.7;
-  transition: opacity 0.2s, background-color 0.2s;
+  transition:
+    opacity 0.2s,
+    background-color 0.2s;
 }
 
 .file-item:hover .corner-btn {
@@ -321,8 +323,8 @@ button.danger:disabled {
 }
 
 .upload-area.dragging {
-    border: 2px dashed #646cff;
-    background-color: rgba(100, 108, 255, 0.1);
+  border: 2px dashed #646cff;
+  background-color: rgba(100, 108, 255, 0.1);
 }
 
 .file-input {
@@ -619,4 +621,3 @@ button.danger:disabled {
   flex: 1;
   margin-bottom: 20px;
 }
-
