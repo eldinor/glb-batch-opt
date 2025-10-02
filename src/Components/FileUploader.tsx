@@ -21,8 +21,8 @@ import {
 import { MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier } from "meshoptimizer";
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
 import JSZip from "jszip";
-import ModelViewer from "./ModelViewer";
-import type { OptimizationSettings } from "./App.tsx";
+import ModelViewer from "./ModelViewer.tsx";
+import type { OptimizationSettings } from "../types.ts";
 
 interface FileProgress {
   name: string;
@@ -524,7 +524,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
         onDrop={handleDrop}
       >
         <div className="file-uploader">
-          <img src="/2Asset 1500.svg" alt="Icon" width={100} />
+          <img src="/2Asset%201500.svg" alt="Icon" width={100} />
           <h2>GLB Batch Optimizer</h2>
           <div className={`upload-area ${isDragging ? "dragging" : ""}`}>
             <p>Drag and drop .glb files here, or</p>
