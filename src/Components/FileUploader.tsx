@@ -21,8 +21,8 @@ import {
 import { MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier } from "meshoptimizer";
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
 import JSZip from "jszip";
-import ModelViewer from "./ModelViewer";
-import type { OptimizationSettings } from "./App.tsx";
+import ModelViewer from "./ModelViewer.tsx";
+import type { OptimizationSettings } from "../types.ts";
 
 interface FileProgress {
   name: string;
@@ -36,9 +36,10 @@ interface FileProgress {
 
 interface FileUploaderProps {
   settings: OptimizationSettings;
+  themeDark: boolean;
 }
 
-export default function FileUploader({ settings }: FileUploaderProps) {
+export default function FileUploader({ settings, themeDark }: FileUploaderProps) {
   const [files, setFiles] = useState<FileProgress[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -524,7 +525,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
         onDrop={handleDrop}
       >
         <div className="file-uploader">
-          <img src="/2Asset 1500.svg" alt="Icon" width={100} />
+          <img src="/2Asset%201500.svg" alt="Icon" height={100} />
           <h2>GLB Batch Optimizer</h2>
           <div className={`upload-area ${isDragging ? "dragging" : ""}`}>
             <p>Drag and drop .glb files here, or</p>
@@ -604,7 +605,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
       <div className="model-viewer-container">
         {selectedModel ? (
-          <ModelViewer modelUrl={selectedModel} />
+          <ModelViewer modelUrl={selectedModel} themeDark={themeDark} />
         ) : (
           <div className="empty-viewer">
             <p>Upload a GLB file to view it here</p>

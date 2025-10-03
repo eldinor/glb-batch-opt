@@ -1,141 +1,18 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import FileUploader from "./FileUploader";
-import { lazyToggleTheme } from "./utilities.ts";
-
-export interface OptimizationSettings {
-  enableDedup: boolean;
-  dedupOptions: {
-    accessors: boolean;
-    meshes: boolean;
-    materials: boolean;
-  };
-  enableTextureCompression: boolean;
-  textureCompressionOptions: {
-    format: "webp" | "jpeg" | "png";
-    quality: "auto" | number;
-    resize: [number, number] | null;
-  };
-  enableFlatten: boolean;
-  enableJoin: boolean;
-  enableWeld: boolean;
-  enableSimplify: boolean;
-  simplifyOptions: {
-    ratio: number;
-    error: number;
-  };
-  enableCenter: boolean;
-  centerOptions: {
-    pivot: "center" | "bottom" | "origin";
-  };
-  enableMeshopt: boolean;
-  meshoptOptions: {
-    level: "high" | "medium" | "low";
-  };
-  enablePrune: boolean;
-  pruneOptions: {
-    keepExtras: boolean;
-  };
-  enableQuantize: boolean;
-  enableResample: boolean;
-  enableInstance: boolean;
-  instanceOptions: {
-    min: number;
-  };
-  enableSparse: boolean;
-  sparseOptions: {
-    ratio: number;
-  };
-  enablePalette: boolean;
-  paletteOptions: {
-    min: number;
-  };
-  enableNormals: boolean;
-  normalsOptions: {
-    overwrite: boolean;
-  };
-  enableMetalRough: boolean;
-  enableMaterialsOptions: boolean;
-  materialsOptions: {
-    doubleSided: boolean;
-  };
-  userSettings: {
-    fileNameSuffix: string;
-    maxFileNameLength: number;
-    shortenFileNames: boolean;
-  };
-}
-
-const defaultSettings: OptimizationSettings = {
-  enableDedup: true,
-  dedupOptions: {
-    accessors: true,
-    meshes: true,
-    materials: true,
-  },
-  enableTextureCompression: true,
-  textureCompressionOptions: {
-    format: "webp",
-    quality: "auto",
-    resize: [1024, 1024],
-  },
-  enableFlatten: true,
-  enableJoin: true,
-  enableWeld: true,
-  enableSimplify: false, // Changed from true to false
-  simplifyOptions: {
-    ratio: 0.75,
-    error: 0.01,
-  },
-  enableCenter: false,
-  centerOptions: {
-    pivot: "center",
-  },
-  enableMeshopt: false,
-  meshoptOptions: {
-    level: "medium",
-  },
-  enablePrune: true,
-  pruneOptions: {
-    keepExtras: true,
-  },
-  enableQuantize: false,
-  enableResample: false,
-  enableInstance: false,
-  instanceOptions: {
-    min: 5,
-  },
-  enableSparse: false,
-  sparseOptions: {
-    ratio: 0.1,
-  },
-  enablePalette: false,
-  paletteOptions: {
-    min: 3,
-  },
-  enableNormals: false,
-  normalsOptions: {
-    overwrite: true,
-  },
-  enableMetalRough: false,
-  enableMaterialsOptions: false,
-  materialsOptions: {
-    doubleSided: false,
-  },
-  userSettings: {
-    fileNameSuffix: "_optimized",
-    maxFileNameLength: 20,
-    shortenFileNames: false,
-  },
-};
+import FileUploader from "./Components/FileUploader.tsx";
+import { lazyToggleTheme } from "./utilities/utilities.ts";
+import { defaultSettings, safelyParseSettings } from "./utilities/settings.ts";
+import type { OptimizationSettings } from "./types.ts";
 
 function App() {
+  const [themeDark, setThemeDark] = useState<boolean>(false);
   const [settings, setSettings] = useState<OptimizationSettings>(() => {
     // Try to load settings from localStorage
     const savedSettings = localStorage.getItem("optimizationSettings");
     if (savedSettings) {
       try {
-        return JSON.parse(savedSettings);
+        return safelyParseSettings(JSON.parse(savedSettings));
       } catch (e) {
         console.error("Failed to parse saved settings:", e);
       }
@@ -148,11 +25,13 @@ function App() {
   const [showUserSettings, setShowUserSettings] = useState(false);
 
   // Save settings to localStorage whenever they change
+  // TODO: Check this effect: as settings is an object, React doesn't perform a deep check. This probably executes unnecessarily
   useEffect(() => {
     localStorage.setItem("optimizationSettings", JSON.stringify(settings));
   }, [settings]);
 
   // Add a function to reset settings to defaults
+  // TODO: consider useCallback() for component const functions or use React Compiler, or avoid this pattern in state
   const resetSettings = () => {
     setSettings(defaultSettings);
     localStorage.setItem("optimizationSettings", JSON.stringify(defaultSettings));
@@ -292,7 +171,7 @@ function App() {
           <div className="user-settings">
             <button onClick={() => setShowUserSettings((prev) => !prev)}>User Settings</button>
 
-            <button style={{ marginLeft: 10 }} onClick={lazyToggleTheme}>
+            <button style={{ marginLeft: 10 }} onClick={() => setThemeDark(lazyToggleTheme())}>
               Theme
             </button>
 
@@ -758,7 +637,7 @@ function App() {
       </div>
 
       <div className="app-container with-settings">
-        <FileUploader settings={settings} />
+        <FileUploader settings={settings} themeDark={themeDark} />
       </div>
 
       <footer className="app-footer">
