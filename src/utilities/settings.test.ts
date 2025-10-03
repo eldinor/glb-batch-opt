@@ -1,31 +1,31 @@
 import { assert, describe, expect, expectTypeOf, it } from "vitest";
-import { defaultSettings, loadSettings } from "./settings.ts";
+import { defaultSettings, safelyParseSettings } from "./settings.ts";
 
-describe("Settings : loadSettings() functions correctly", () => {
-  it("loadSettings() correctly returns defaultSettings with bad input #1", () => {
-    const settings = loadSettings(undefined);
+describe("Settings : safelyParseSettings() functions correctly", () => {
+  it("safelyParseSettings() correctly returns defaultSettings with bad input #1", () => {
+    const settings = safelyParseSettings(undefined);
     expect(settings).deep.equal(defaultSettings);
     expectTypeOf(settings).toEqualTypeOf(defaultSettings);
   });
 
-  it("loadSettings() correctly returns defaultSettings with bad input #2", () => {
-    const settings = loadSettings({});
+  it("safelyParseSettings() correctly returns defaultSettings with bad input #2", () => {
+    const settings = safelyParseSettings({});
     expect(settings).deep.equal(defaultSettings);
   });
 
-  it("loadSettings() correctly returns defaultSettings with bad input #3", () => {
-    const settings = loadSettings({ unsupportedValue: [1, 2, 3] });
+  it("safelyParseSettings() correctly returns defaultSettings with bad input #3", () => {
+    const settings = safelyParseSettings({ unsupportedValue: [1, 2, 3] });
     expect(settings).deep.equal(defaultSettings);
     expect(settings.unsupportedValue).toBeUndefined();
   });
 
-  it("loadSettings() correctly returns defaultSettings with bad input #4", () => {
-    const settings = loadSettings({ oldSettingExample: true });
+  it("safelyParseSettings() correctly returns defaultSettings with bad input #4", () => {
+    const settings = safelyParseSettings({ oldSettingExample: true });
     expect(settings).deep.equal(defaultSettings);
   });
 
-  it("loadSettings() correctly returns defaultSettings with modifications #1", () => {
-    const settings = loadSettings({
+  it("safelyParseSettings() correctly returns defaultSettings with modifications #1", () => {
+    const settings = safelyParseSettings({
       enableDedup: !defaultSettings.enableDedup,
       invalidExample: true,
     });
@@ -33,8 +33,8 @@ describe("Settings : loadSettings() functions correctly", () => {
     expect(settings.enableDedup).not.toBe(defaultSettings.enableDedup);
   });
 
-  it("loadSettings() correctly returns defaultSettings with modifications #2", () => {
-    const settings = loadSettings({
+  it("safelyParseSettings() correctly returns defaultSettings with modifications #2", () => {
+    const settings = safelyParseSettings({
       dedupOptions: {
         accessors: !defaultSettings.dedupOptions.accessors,
         meshes: !defaultSettings.dedupOptions.meshes,
@@ -51,8 +51,8 @@ describe("Settings : loadSettings() functions correctly", () => {
     assert(settings.dedupOptions.materials !== defaultSettings.dedupOptions.materials, "meshes should be different.");
   });
 
-  it("loadSettings() correctly returns defaultSettings with modifications #3", () => {
-    const settings = loadSettings({
+  it("safelyParseSettings() correctly returns defaultSettings with modifications #3", () => {
+    const settings = safelyParseSettings({
       textureCompressionOptions: { format: "jpeg", quality: 1, resize: [512, 512] },
       invalidExample: true,
     });

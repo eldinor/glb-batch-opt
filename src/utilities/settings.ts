@@ -86,7 +86,7 @@ function parseSettings(settings: Partial<Setting>, newSettings: Setting = { ...d
   return newSettings;
 }
 
-export function loadSettings(settings: Partial<OptimizationSettings>): OptimizationSettings {
+export function safelyParseSettings(settings: Partial<OptimizationSettings>): OptimizationSettings {
   try {
     return parseSettings(settings) as OptimizationSettings;
   } catch (error) {

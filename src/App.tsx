@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import FileUploader from "./Components/FileUploader.tsx";
 import { lazyToggleTheme } from "./utilities/utilities.ts";
-import { defaultSettings } from "./utilities/settings.ts";
+import { defaultSettings, safelyParseSettings } from "./utilities/settings.ts";
 import type { OptimizationSettings } from "./types.ts";
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
     const savedSettings = localStorage.getItem("optimizationSettings");
     if (savedSettings) {
       try {
-        return JSON.parse(savedSettings);
+        return safelyParseSettings(JSON.parse(savedSettings));
       } catch (e) {
         console.error("Failed to parse saved settings:", e);
       }
