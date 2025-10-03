@@ -6,6 +6,7 @@ import { defaultSettings } from "./utilities/settings.ts";
 import type { OptimizationSettings } from "./types.ts";
 
 function App() {
+  const [themeDark, setThemeDark] = useState<boolean>(false);
   const [settings, setSettings] = useState<OptimizationSettings>(() => {
     // Try to load settings from localStorage
     const savedSettings = localStorage.getItem("optimizationSettings");
@@ -168,7 +169,7 @@ function App() {
           <div className="user-settings">
             <button onClick={() => setShowUserSettings((prev) => !prev)}>User Settings</button>
 
-            <button style={{ marginLeft: 10 }} onClick={lazyToggleTheme}>
+            <button style={{ marginLeft: 10 }} onClick={() => setThemeDark(lazyToggleTheme())}>
               Theme
             </button>
 
@@ -634,7 +635,7 @@ function App() {
       </div>
 
       <div className="app-container with-settings">
-        <FileUploader settings={settings} />
+        <FileUploader settings={settings} themeDark={themeDark} />
       </div>
 
       <footer className="app-footer">

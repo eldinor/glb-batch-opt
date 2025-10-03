@@ -5,9 +5,10 @@ import { GLTFFileLoader } from "@babylonjs/loaders/glTF/glTFFileLoader";
 
 interface ModelViewerProps {
   modelUrl: string;
+  themeDark: boolean;
 }
 
-export default function ModelViewer({ modelUrl }: ModelViewerProps) {
+export default function ModelViewer({ modelUrl, themeDark }: ModelViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<BABYLON.Engine | null>(null);
   const sceneRef = useRef<BABYLON.Scene | null>(null);
@@ -156,7 +157,7 @@ export default function ModelViewer({ modelUrl }: ModelViewerProps) {
 
   return (
     <div className="model-viewer">
-      <canvas ref={canvasRef} />
+      <canvas ref={canvasRef} style={{ filter: themeDark ? "invert(1)" : "invert(0)" }} />
     </div>
   );
 }

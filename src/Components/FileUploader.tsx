@@ -36,9 +36,10 @@ interface FileProgress {
 
 interface FileUploaderProps {
   settings: OptimizationSettings;
+  themeDark: boolean;
 }
 
-export default function FileUploader({ settings }: FileUploaderProps) {
+export default function FileUploader({ settings, themeDark }: FileUploaderProps) {
   const [files, setFiles] = useState<FileProgress[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -604,7 +605,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
       <div className="model-viewer-container">
         {selectedModel ? (
-          <ModelViewer modelUrl={selectedModel} />
+          <ModelViewer modelUrl={selectedModel} themeDark={themeDark} />
         ) : (
           <div className="empty-viewer">
             <p>Upload a GLB file to view it here</p>

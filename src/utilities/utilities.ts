@@ -1,6 +1,9 @@
-export function lazyToggleTheme() {
+/** returns themeDark boolean */
+export function lazyToggleTheme(): boolean {
   const htmlElement = document.documentElement;
-  htmlElement.style.filter = htmlElement.style.filter !== "invert(1)" ? "invert(1)" : "invert(0)";
+  const themeDark = htmlElement.style.filter !== "invert(1)";
+  htmlElement.style.filter = themeDark ? "invert(1)" : "invert(0)";
+  return themeDark;
 }
 
 /** Type predicate to check if a value is an array of exactly two numbers */
