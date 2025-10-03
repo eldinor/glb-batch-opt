@@ -1,4 +1,9 @@
-export interface OptimizationSettings {
+type OptionValue = null | boolean | string | number | [number, number];
+type Options = Record<string, OptionValue>;
+export type Setting = Record<string, OptionValue | Options>;
+
+/** Note: Options should only be at the top-level. */
+export interface OptimizationSettings extends Setting {
   enableDedup: boolean;
   dedupOptions: {
     accessors: boolean;

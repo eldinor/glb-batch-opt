@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import FileUploader from "./Components/FileUploader.tsx";
-import { lazyToggleTheme } from "./utilities.ts";
-import { defaultSettings } from "./settings.ts";
+import { lazyToggleTheme } from "./utilities/utilities.ts";
+import { defaultSettings } from "./utilities/settings.ts";
 import type { OptimizationSettings } from "./types.ts";
 
 function App() {
