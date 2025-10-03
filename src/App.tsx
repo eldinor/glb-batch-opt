@@ -25,11 +25,13 @@ function App() {
   const [showUserSettings, setShowUserSettings] = useState(false);
 
   // Save settings to localStorage whenever they change
+  // TODO: Check this effect: as settings is an object, React doesn't perform a deep check. This probably executes unnecessarily
   useEffect(() => {
     localStorage.setItem("optimizationSettings", JSON.stringify(settings));
   }, [settings]);
 
   // Add a function to reset settings to defaults
+  // TODO: consider useCallback() for component const functions or use React Compiler, or avoid this pattern in state
   const resetSettings = () => {
     setSettings(defaultSettings);
     localStorage.setItem("optimizationSettings", JSON.stringify(defaultSettings));
