@@ -86,9 +86,9 @@ function parseSettings(settings: Partial<Setting>, newSettings: Setting = { ...d
   return newSettings;
 }
 
-export function safelyParseSettings(settings: Partial<OptimizationSettings>): OptimizationSettings {
+export function safelyParseSettings(settings: unknown = {}): OptimizationSettings {
   try {
-    return parseSettings(settings) as OptimizationSettings;
+    return parseSettings(settings as Partial<OptimizationSettings>) as OptimizationSettings;
   } catch (error) {
     console.log("Could not parse input object, corrupt or outdated input Settings", {
       settings: settings,
