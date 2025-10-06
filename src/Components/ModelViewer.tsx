@@ -30,16 +30,34 @@ export default function ModelViewer({ modelUrl, themeDark }: ModelViewerProps) {
       const scene = new BABYLON.Scene(engine);
       sceneRef.current = scene;
 
+      scene.createDefaultEnvironment({
+        createGround: false,
+        createSkybox: false,
+      });
+
       // Add camera
-      const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 10, new BABYLON.Vector3(0, 0, 0), scene);
+      const camera = new BABYLON.ArcRotateCamera(
+        "camera",
+        -Math.PI / 2,
+        Math.PI / 2.5,
+        10,
+        new BABYLON.Vector3(0, 0, 0),
+        scene
+      );
       camera.attachControl(canvasRef.current, true);
-      camera.wheelPrecision = 50;
+      camera.wheelDeltaPercentage = 0.01;
+      camera.pinchDeltaPercentage = 0.01;
+      camera.speed = 0.2;
       camera.lowerRadiusLimit = 2;
       camera.upperRadiusLimit = 50;
+      camera.useFramingBehavior = true;
+      const framingBehavior = camera.getBehaviorByName("Framing") as BABYLON.FramingBehavior;
+      framingBehavior.framingTime = 0;
+      // framingBehavior.elevationReturnTime = -1;
 
       // Add lights
       const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-      light1.intensity = 0.7;
+      light1.intensity = 0.5;
 
       const light2 = new BABYLON.DirectionalLight("light2", new BABYLON.Vector3(0, -1, 1), scene);
       light2.intensity = 0.5;
@@ -73,7 +91,9 @@ export default function ModelViewer({ modelUrl, themeDark }: ModelViewerProps) {
     if (!modelUrl || !sceneRef.current) return;
 
     // Clear previous models
-    const meshesToDispose = sceneRef.current.meshes.filter((mesh) => mesh.name !== "ground" && !mesh.name.includes("light"));
+    const meshesToDispose = sceneRef.current.meshes.filter(
+      (mesh) => mesh.name !== "ground" && !mesh.name.includes("light")
+    );
 
     meshesToDispose.forEach((mesh) => {
       mesh.dispose();
@@ -102,6 +122,8 @@ export default function ModelViewer({ modelUrl, themeDark }: ModelViewerProps) {
             if (camera) {
               camera.setTarget(center);
               camera.radius = maxSize * 2;
+              camera.upperRadiusLimit = camera.radius * 4;
+              camera.pinchPrecision = 200 / camera.radius;
             }
           }
 
