@@ -525,7 +525,7 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
         onDrop={handleDrop}
       >
         <div className="file-uploader">
-          <img src="/2Asset%201500.svg" alt="Icon" height={100} />
+          <img src="/2Asset%201500.svg" alt="Icon" height={100} style={{filter: themeDark ? "invert(1)" : "invert(0)"}} />
           <h2>GLB Batch Optimizer</h2>
           <div className={`upload-area ${isDragging ? "dragging" : ""}`}>
             <p>Drag and drop .glb files here, or</p>
