@@ -22,6 +22,7 @@ import { MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier } from "meshoptimizer
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
 import JSZip from "jszip";
 import ModelViewer from "./ModelViewer.tsx";
+import type { DragEvent, MouseEvent } from "react";
 import type { OptimizationSettings } from "../types.ts";
 
 interface FileProgress {
@@ -136,24 +137,24 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
     await processFiles(Array.from(e.target.files));
   };
 
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
@@ -436,7 +437,7 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
     }
   };
 
-  const handleDownloadFile = (url: string, fileName: string, e: React.MouseEvent) => {
+  const handleDownloadFile = (url: string, fileName: string, e: MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the file selection
 
     // Create a temporary anchor element
@@ -466,7 +467,7 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
     return `${baseName}${fileNameSuffix}.glb`;
   };
 
-  const handleRemoveFile = (index: number, e: React.MouseEvent) => {
+  const handleRemoveFile = (index: number, e: MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the file selection
 
     // Get the file to remove
