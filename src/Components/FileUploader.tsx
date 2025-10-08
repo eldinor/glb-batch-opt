@@ -258,7 +258,12 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
     if (settings.enableCenter) {
       transforms.push(
         center({
-          pivot: settings.centerOptions.pivot === "bottom" ? "below" : settings.centerOptions.pivot === "origin" ? ([0, 0, 0] as vec3) : settings.centerOptions.pivot,
+          pivot:
+            settings.centerOptions.pivot === "bottom"
+              ? "below"
+              : settings.centerOptions.pivot === "origin"
+                ? ([0, 0, 0] as vec3)
+                : settings.centerOptions.pivot,
         })
       );
     }
@@ -357,7 +362,13 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
           finalVRAM += vram!;
         });
       console.log("Final VRAM usage:", finalVRAM);
-      console.log("VRAM reduction:", totalVRAM - finalVRAM, "bytes (", (((totalVRAM - finalVRAM) / totalVRAM) * 100).toFixed(2), "%)");
+      console.log(
+        "VRAM reduction:",
+        totalVRAM - finalVRAM,
+        "bytes (",
+        (((totalVRAM - finalVRAM) / totalVRAM) * 100).toFixed(2),
+        "%)"
+      );
     }
 
     // Output optimized GLB
@@ -525,11 +536,25 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
         onDrop={handleDrop}
       >
         <div className="file-uploader">
-          <img src="/2Asset%201500.svg" alt="Icon" height={100} style={{filter: themeDark ? "invert(1)" : "invert(0)"}} />
+          <img
+            src="/2Asset%201500.svg"
+            alt="Icon"
+            height={100}
+            style={{ filter: themeDark ? "invert(1)" : "invert(0)" }}
+          />
           <h2>GLB Batch Optimizer</h2>
           <div className={`upload-area ${isDragging ? "dragging" : ""}`}>
             <p>Drag and drop .glb files here, or</p>
-            <input type="file" multiple accept=".glb" onChange={handleFileChange} disabled={isProcessing} ref={fileInputRef} id="file-input" className="file-input" />
+            <input
+              type="file"
+              multiple
+              accept=".glb"
+              onChange={handleFileChange}
+              disabled={isProcessing}
+              ref={fileInputRef}
+              id="file-input"
+              className="file-input"
+            />
             <button
               className="primary"
               onClick={() => {
@@ -549,7 +574,11 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
                   <button className="small danger" onClick={handleClearAllFiles} disabled={files.length === 0}>
                     Clear All
                   </button>
-                  <button className="small" onClick={handleDownloadZip} disabled={isZipping || files.filter((f) => f.status === "completed").length === 0}>
+                  <button
+                    className="small"
+                    onClick={handleDownloadZip}
+                    disabled={isZipping || files.filter((f) => f.status === "completed").length === 0}
+                  >
                     {isZipping ? "Creating Zip..." : "Download as Zip"}
                   </button>
                 </div>
@@ -567,7 +596,11 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
                       </span>
                       <div className="file-actions">
                         {file.status === "completed" && file.url && (
-                          <button className="download-btn" onClick={(e) => handleDownloadFile(file.url!, file.name, e)} title="Download optimized GLB">
+                          <button
+                            className="download-btn"
+                            onClick={(e) => handleDownloadFile(file.url!, file.name, e)}
+                            title="Download optimized GLB"
+                          >
                             ↓
                           </button>
                         )}
@@ -587,12 +620,17 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
                             <br />
                             Optimized: {(file.optimizedSize / (1024 * 1024)).toFixed(2)} MB
                             <br />
-                            Reduction: {(((file.originalSize - file.optimizedSize) / file.originalSize) * 100).toFixed(1)}%
+                            Reduction:{" "}
+                            {(((file.originalSize - file.optimizedSize) / file.originalSize) * 100).toFixed(1)}%
                           </>
                         )}
                       </span>
                     )}
-                    <button className="remove-btn corner-btn" onClick={(e) => handleRemoveFile(index, e)} title="Remove file">
+                    <button
+                      className="remove-btn corner-btn"
+                      onClick={(e) => handleRemoveFile(index, e)}
+                      title="Remove file"
+                    >
                       ×
                     </button>
                   </li>
