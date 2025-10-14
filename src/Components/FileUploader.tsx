@@ -37,10 +37,9 @@ interface FileProgress {
 
 interface FileUploaderProps {
   settings: OptimizationSettings;
-  themeDark: boolean;
 }
 
-export default function FileUploader({ settings, themeDark }: FileUploaderProps) {
+export default function FileUploader({ settings }: FileUploaderProps) {
   const [files, setFiles] = useState<FileProgress[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -541,7 +540,7 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
             src="/2Asset%201500.svg"
             alt="Icon"
             height={100}
-            style={{ filter: themeDark ? "invert(1)" : "invert(0)" }}
+            style={{ filter: settings.userSettings.darkMode ? "invert(1)" : "invert(0)" }}
           />
           <h2>GLB Batch Optimizer</h2>
           <div className={`upload-area ${isDragging ? "dragging" : ""}`}>
@@ -644,7 +643,7 @@ export default function FileUploader({ settings, themeDark }: FileUploaderProps)
 
       <div className="model-viewer-container">
         {selectedModel ? (
-          <ModelViewer modelUrl={selectedModel} themeDark={themeDark} />
+          <ModelViewer modelUrl={selectedModel} themeDark={settings.userSettings.darkMode} />
         ) : (
           <div className="empty-viewer">
             <p>Upload a GLB file to view it here</p>

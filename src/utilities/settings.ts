@@ -1,5 +1,5 @@
 import type { OptimizationSettings, Setting } from "../types.ts";
-import { isTwoNumberArray } from "./utilities.ts";
+import { isTwoNumberArray, userPrefersDarkMode } from "./utilities.ts";
 
 export const defaultSettings: OptimizationSettings = {
   enableDedup: true,
@@ -61,6 +61,7 @@ export const defaultSettings: OptimizationSettings = {
     fileNameSuffix: "_optimized",
     maxFileNameLength: 20,
     shortenFileNames: false,
+    darkMode: userPrefersDarkMode()
   },
 };
 // Prevent property mutation

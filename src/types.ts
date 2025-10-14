@@ -1,4 +1,4 @@
-type OptionValue = null | boolean | string | number | [number, number];
+export type OptionValue = null | boolean | string | number | [number, number];
 type Options = Record<string, OptionValue>;
 export type Setting = Record<string, OptionValue | Options>;
 
@@ -63,5 +63,16 @@ export interface OptimizationSettings extends Setting {
     fileNameSuffix: string;
     maxFileNameLength: number;
     shortenFileNames: boolean;
+    darkMode: boolean;
   };
 }
+
+type NonUndefined<T> = T extends undefined ? never : T;
+
+/**
+ * RequiredPick is useful for React state Objects
+ * - Disallows undefined values
+ */
+export type RequiredPick<T, K extends keyof T> = {
+  [P in K]: NonUndefined<T[P]>;
+};
