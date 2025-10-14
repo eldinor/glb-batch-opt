@@ -1,12 +1,5 @@
-/**
- * Toggles the current theme.
- * @param forceDark Force set dark mode
- * @returns themeDark boolean */
-export function lazyToggleTheme(forceDark?: boolean): boolean {
-  const htmlElement = document.documentElement;
-  const themeDark = htmlElement.style.filter !== "invert(1)";
-  htmlElement.style.filter = forceDark || themeDark ? "invert(1)" : "invert(0)";
-  return themeDark;
+export function lazySetTheme(darkMode: boolean) {
+  document.documentElement.style.filter = darkMode ? "invert(1)" : "invert(0)";
 }
 
 export function userPrefersDarkMode(): boolean {

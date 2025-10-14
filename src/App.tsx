@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import FileUploader from "./Components/FileUploader.tsx";
-import { lazyToggleTheme } from "./utilities/utilities.ts";
+import { lazySetTheme, userPrefersDarkMode } from "./utilities/utilities.ts";
 import { defaultSettings, safelyParseSettings } from "./utilities/settings.ts";
 import type { OptimizationSettings, RequiredPick } from "./types.ts";
 
@@ -26,7 +26,7 @@ function App() {
   /* componentDidMount executed once after render (must have empty array dependencies) */
   useEffect(() => {
     if (settings.userSettings.darkMode) {
-      lazyToggleTheme(true);
+      lazySetTheme(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -41,6 +41,7 @@ function App() {
   // TODO: consider useCallback() for component const functions or use React Compiler, or avoid this pattern in state
   const resetSettings = () => {
     setSettings(defaultSettings);
+    lazySetTheme(userPrefersDarkMode());
     localStorage.setItem("optimizationSettings", JSON.stringify(defaultSettings));
   };
 
@@ -106,16 +107,17 @@ function App() {
                     type="checkbox"
                     id="dark-theme"
                     checked={settings.userSettings.darkMode}
-                    onChange={() =>
+                    onChange={(e) => {
+                      lazySetTheme(e.target.checked);
                       handleSettingChange({
                         userSettings: {
                           fileNameSuffix: settings.userSettings.fileNameSuffix,
                           maxFileNameLength: settings.userSettings.maxFileNameLength,
                           shortenFileNames: settings.userSettings.shortenFileNames,
-                          darkMode: lazyToggleTheme(),
+                          darkMode: e.target.checked,
                         },
-                      })
-                    }
+                      });
+                    }}
                   />
                   <label htmlFor="dark-theme">Dark Theme</label>
                 </div>
