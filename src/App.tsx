@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import FileUploader from "./Components/FileUploader.tsx";
-import { lazyToggleTheme } from "./utilities/utilities.ts";
+import { lazySetTheme, userPrefersDarkMode } from "./utilities/utilities.ts";
 import { defaultSettings, safelyParseSettings } from "./utilities/settings.ts";
-import type { OptimizationSettings } from "./types.ts";
+import type { OptimizationSettings, RequiredPick } from "./types.ts";
 
 function App() {
-  const [themeDark, setThemeDark] = useState<boolean>(false);
   const [settings, setSettings] = useState<OptimizationSettings>(() => {
     // Try to load settings from localStorage
     const savedSettings = localStorage.getItem("optimizationSettings");
@@ -24,6 +23,14 @@ function App() {
 
   const [showUserSettings, setShowUserSettings] = useState(false);
 
+  /* componentDidMount executed once after render (must have empty array dependencies) */
+  useEffect(() => {
+    if (settings.userSettings.darkMode) {
+      lazySetTheme(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Save settings to localStorage whenever they change
   // TODO: Check this effect: as settings is an object, React doesn't perform a deep check. This probably executes unnecessarily
   useEffect(() => {
@@ -34,133 +41,17 @@ function App() {
   // TODO: consider useCallback() for component const functions or use React Compiler, or avoid this pattern in state
   const resetSettings = () => {
     setSettings(defaultSettings);
+    lazySetTheme(userPrefersDarkMode());
     localStorage.setItem("optimizationSettings", JSON.stringify(defaultSettings));
   };
 
-  const handleSettingChange = (settingType: keyof OptimizationSettings, value: boolean | any) => {
+  // A generic handler where we are relying on TypeScript to perform well
+  const handleSettingChange = <K extends keyof OptimizationSettings>(
+    newSettings: RequiredPick<OptimizationSettings, K>
+  ) => {
     setSettings((prev) => ({
       ...prev,
-      [settingType]: value,
-    }));
-  };
-
-  const handleDedupOptionChange = (option: keyof OptimizationSettings["dedupOptions"], value: boolean) => {
-    setSettings((prev) => ({
-      ...prev,
-      dedupOptions: {
-        ...prev.dedupOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handleTextureCompressionOptionChange = (option: keyof OptimizationSettings["textureCompressionOptions"], value: any) => {
-    setSettings((prev) => ({
-      ...prev,
-      textureCompressionOptions: {
-        ...prev.textureCompressionOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handleSimplifyOptionChange = (option: keyof OptimizationSettings["simplifyOptions"], value: number) => {
-    setSettings((prev) => ({
-      ...prev,
-      simplifyOptions: {
-        ...prev.simplifyOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handleCenterOptionChange = (option: keyof OptimizationSettings["centerOptions"], value: any) => {
-    setSettings((prev) => ({
-      ...prev,
-      centerOptions: {
-        ...prev.centerOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handleMeshoptOptionChange = (option: keyof OptimizationSettings["meshoptOptions"], value: any) => {
-    setSettings((prev) => ({
-      ...prev,
-      meshoptOptions: {
-        ...prev.meshoptOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handlePruneOptionChange = (option: keyof OptimizationSettings["pruneOptions"], value: boolean) => {
-    setSettings((prev) => ({
-      ...prev,
-      pruneOptions: {
-        ...prev.pruneOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handleInstanceOptionChange = (option: keyof OptimizationSettings["instanceOptions"], value: number) => {
-    setSettings((prev) => ({
-      ...prev,
-      instanceOptions: {
-        ...prev.instanceOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handleSparseOptionChange = (option: keyof OptimizationSettings["sparseOptions"], value: number) => {
-    setSettings((prev) => ({
-      ...prev,
-      sparseOptions: {
-        ...prev.sparseOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handlePaletteOptionChange = (option: keyof OptimizationSettings["paletteOptions"], value: number) => {
-    setSettings((prev) => ({
-      ...prev,
-      paletteOptions: {
-        ...prev.paletteOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handleNormalsOptionChange = (option: keyof OptimizationSettings["normalsOptions"], value: boolean) => {
-    setSettings((prev) => ({
-      ...prev,
-      normalsOptions: {
-        ...prev.normalsOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handleMaterialsOptionChange = (option: keyof OptimizationSettings["materialsOptions"], value: boolean) => {
-    setSettings((prev) => ({
-      ...prev,
-      materialsOptions: {
-        ...prev.materialsOptions,
-        [option]: value,
-      },
-    }));
-  };
-
-  const handleUserSettingChange = (option: keyof OptimizationSettings["userSettings"], value: any) => {
-    setSettings((prev) => ({
-      ...prev,
-      userSettings: {
-        ...prev.userSettings,
-        [option]: value,
-      },
+      ...newSettings,
     }));
   };
 
@@ -171,15 +62,25 @@ function App() {
           <div className="user-settings">
             <button onClick={() => setShowUserSettings((prev) => !prev)}>User Settings</button>
 
-            <button style={{ marginLeft: 10 }} onClick={() => setThemeDark(lazyToggleTheme())}>
-              Theme
-            </button>
-
             {showUserSettings && (
               <div className="user-settings-dropdown">
                 <div className="setting-field">
                   <label htmlFor="file-suffix">File Suffix:</label>
-                  <input type="text" id="file-suffix" value={settings.userSettings.fileNameSuffix} onChange={(e) => handleUserSettingChange("fileNameSuffix", e.target.value)} />
+                  <input
+                    type="text"
+                    id="file-suffix"
+                    value={settings.userSettings.fileNameSuffix}
+                    onChange={(e) =>
+                      handleSettingChange({
+                        userSettings: {
+                          fileNameSuffix: e.target.value,
+                          maxFileNameLength: settings.userSettings.maxFileNameLength,
+                          shortenFileNames: settings.userSettings.shortenFileNames,
+                          darkMode: settings.userSettings.darkMode,
+                        },
+                      })
+                    }
+                  />
                 </div>
 
                 <div className="setting-field">
@@ -187,9 +88,38 @@ function App() {
                     type="checkbox"
                     id="shorten-names"
                     checked={settings.userSettings.shortenFileNames}
-                    onChange={(e) => handleUserSettingChange("shortenFileNames", e.target.checked)}
+                    onChange={(e) =>
+                      handleSettingChange({
+                        userSettings: {
+                          fileNameSuffix: settings.userSettings.fileNameSuffix,
+                          maxFileNameLength: settings.userSettings.maxFileNameLength,
+                          shortenFileNames: e.target.checked,
+                          darkMode: settings.userSettings.darkMode,
+                        },
+                      })
+                    }
                   />
                   <label htmlFor="shorten-names">Shorten File Names</label>
+                </div>
+
+                <div className="setting-field">
+                  <input
+                    type="checkbox"
+                    id="dark-theme"
+                    checked={settings.userSettings.darkMode}
+                    onChange={(e) => {
+                      lazySetTheme(e.target.checked);
+                      handleSettingChange({
+                        userSettings: {
+                          fileNameSuffix: settings.userSettings.fileNameSuffix,
+                          maxFileNameLength: settings.userSettings.maxFileNameLength,
+                          shortenFileNames: settings.userSettings.shortenFileNames,
+                          darkMode: e.target.checked,
+                        },
+                      });
+                    }}
+                  />
+                  <label htmlFor="dark-theme">Dark Theme</label>
                 </div>
 
                 {settings.userSettings.shortenFileNames && (
@@ -201,7 +131,16 @@ function App() {
                       min="5"
                       max="100"
                       value={settings.userSettings.maxFileNameLength}
-                      onChange={(e) => handleUserSettingChange("maxFileNameLength", parseInt(e.target.value))}
+                      onChange={(e) =>
+                        handleSettingChange({
+                          userSettings: {
+                            fileNameSuffix: settings.userSettings.fileNameSuffix,
+                            maxFileNameLength: parseInt(e.target.value),
+                            shortenFileNames: settings.userSettings.shortenFileNames,
+                            darkMode: settings.userSettings.darkMode,
+                          },
+                        })
+                      }
                     />
                   </div>
                 )}
@@ -220,7 +159,12 @@ function App() {
       <div className="settings-panel">
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enablePrune} onChange={(e) => handleSettingChange("enablePrune", e.target.checked)} id="prune-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enablePrune}
+              onChange={(e) => handleSettingChange({ enablePrune: e.target.checked })}
+              id="prune-toggle"
+            />
             <label htmlFor="prune-toggle">Prune Unused Data</label>
           </div>
 
@@ -230,7 +174,7 @@ function App() {
                 <input
                   type="checkbox"
                   checked={settings.pruneOptions.keepExtras}
-                  onChange={(e) => handlePruneOptionChange("keepExtras", e.target.checked)}
+                  onChange={(e) => handleSettingChange({ keepExtras: e.target.checked })}
                   id="prune-keep-extras"
                 />
                 <label htmlFor="prune-keep-extras">Keep Metadata</label>
@@ -241,22 +185,42 @@ function App() {
 
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableDedup} onChange={(e) => handleSettingChange("enableDedup", e.target.checked)} id="dedup-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableDedup}
+              onChange={(e) => handleSettingChange({ enableDedup: e.target.checked })}
+              id="dedup-toggle"
+            />
             <label htmlFor="dedup-toggle">Deduplication</label>
           </div>
 
           {settings.enableDedup && (
             <div className="setting-options">
               <div className="setting-option">
-                <input type="checkbox" checked={settings.dedupOptions.accessors} onChange={(e) => handleDedupOptionChange("accessors", e.target.checked)} id="dedup-accessors" />
+                <input
+                  type="checkbox"
+                  checked={settings.dedupOptions.accessors}
+                  onChange={(e) => handleSettingChange({ accessors: e.target.checked })}
+                  id="dedup-accessors"
+                />
                 <label htmlFor="dedup-accessors">Accessors</label>
               </div>
               <div className="setting-option">
-                <input type="checkbox" checked={settings.dedupOptions.meshes} onChange={(e) => handleDedupOptionChange("meshes", e.target.checked)} id="dedup-meshes" />
+                <input
+                  type="checkbox"
+                  checked={settings.dedupOptions.meshes}
+                  onChange={(e) => handleSettingChange({ meshes: e.target.checked })}
+                  id="dedup-meshes"
+                />
                 <label htmlFor="dedup-meshes">Meshes</label>
               </div>
               <div className="setting-option">
-                <input type="checkbox" checked={settings.dedupOptions.materials} onChange={(e) => handleDedupOptionChange("materials", e.target.checked)} id="dedup-materials" />
+                <input
+                  type="checkbox"
+                  checked={settings.dedupOptions.materials}
+                  onChange={(e) => handleSettingChange({ materials: e.target.checked })}
+                  id="dedup-materials"
+                />
                 <label htmlFor="dedup-materials">Materials</label>
               </div>
             </div>
@@ -266,7 +230,12 @@ function App() {
         {/* Flatten setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableFlatten} onChange={(e) => handleSettingChange("enableFlatten", e.target.checked)} id="flatten-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableFlatten}
+              onChange={(e) => handleSettingChange({ enableFlatten: e.target.checked })}
+              id="flatten-toggle"
+            />
             <label htmlFor="flatten-toggle">Flatten Node Hierarchy</label>
           </div>
         </div>
@@ -274,7 +243,12 @@ function App() {
         {/* Join setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableJoin} onChange={(e) => handleSettingChange("enableJoin", e.target.checked)} id="join-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableJoin}
+              onChange={(e) => handleSettingChange({ enableJoin: e.target.checked })}
+              id="join-toggle"
+            />
             <label htmlFor="join-toggle">Join Meshes</label>
           </div>
         </div>
@@ -282,7 +256,12 @@ function App() {
         {/* Weld setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableWeld} onChange={(e) => handleSettingChange("enableWeld", e.target.checked)} id="weld-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableWeld}
+              onChange={(e) => handleSettingChange({ enableWeld: e.target.checked })}
+              id="weld-toggle"
+            />
             <label htmlFor="weld-toggle">Weld Vertices</label>
           </div>
         </div>
@@ -293,7 +272,7 @@ function App() {
             <input
               type="checkbox"
               checked={settings.enableTextureCompression}
-              onChange={(e) => handleSettingChange("enableTextureCompression", e.target.checked)}
+              onChange={(e) => handleSettingChange({ enableTextureCompression: e.target.checked })}
               id="texture-compression-toggle"
             />
             <label htmlFor="texture-compression-toggle">Texture Compression</label>
@@ -303,7 +282,19 @@ function App() {
             <div className="setting-options">
               <div className="setting-option">
                 <label htmlFor="texture-format">Format:</label>
-                <select id="texture-format" value={settings.textureCompressionOptions.format} onChange={(e) => handleTextureCompressionOptionChange("format", e.target.value)}>
+                <select
+                  id="texture-format"
+                  value={settings.textureCompressionOptions.format}
+                  onChange={(e) =>
+                    handleSettingChange({
+                      textureCompressionOptions: {
+                        format: e.target.value as never,
+                        quality: settings.textureCompressionOptions.quality,
+                        resize: settings.textureCompressionOptions.resize,
+                      },
+                    })
+                  }
+                >
                   <option value="webp">WebP</option>
                   <option value="jpeg">JPEG</option>
                   <option value="png">PNG</option>
@@ -317,11 +308,13 @@ function App() {
                     id="texture-quality-mode"
                     value={settings.textureCompressionOptions.quality === "auto" ? "auto" : "manual"}
                     onChange={(e) => {
-                      if (e.target.value === "auto") {
-                        handleTextureCompressionOptionChange("quality", "auto");
-                      } else {
-                        handleTextureCompressionOptionChange("quality", 0.8);
-                      }
+                      handleSettingChange({
+                        textureCompressionOptions: {
+                          format: settings.textureCompressionOptions.format,
+                          quality: e.target.value === "auto" ? "auto" : 0.8,
+                          resize: settings.textureCompressionOptions.resize,
+                        },
+                      });
                     }}
                   >
                     <option value="auto">Auto</option>
@@ -337,10 +330,20 @@ function App() {
                         max="1"
                         step="0.05"
                         value={settings.textureCompressionOptions.quality}
-                        onChange={(e) => handleTextureCompressionOptionChange("quality", parseFloat(e.target.value))}
+                        onChange={(e) =>
+                          handleSettingChange({
+                            textureCompressionOptions: {
+                              format: settings.textureCompressionOptions.format,
+                              quality: parseFloat(e.target.value),
+                              resize: settings.textureCompressionOptions.resize,
+                            },
+                          })
+                        }
                         className="slider"
                       />
-                      <div className="quality-value">{(settings.textureCompressionOptions.quality * 100).toFixed(0)}%</div>
+                      <div className="quality-value">
+                        {(settings.textureCompressionOptions.quality * 100).toFixed(0)}%
+                      </div>
                     </div>
                   )}
                 </div>
@@ -350,7 +353,15 @@ function App() {
                 <input
                   type="checkbox"
                   checked={settings.textureCompressionOptions.resize !== null}
-                  onChange={(e) => handleTextureCompressionOptionChange("resize", e.target.checked ? [1024, 1024] : null)}
+                  onChange={(e) =>
+                    handleSettingChange({
+                      textureCompressionOptions: {
+                        format: settings.textureCompressionOptions.format,
+                        quality: settings.textureCompressionOptions.quality,
+                        resize: e.target.checked ? [1024, 1024] : null,
+                      },
+                    })
+                  }
                   id="texture-resize"
                 />
                 <label htmlFor="texture-resize">Resize Textures</label>
@@ -361,7 +372,16 @@ function App() {
                   <select
                     id="texture-size"
                     value={settings.textureCompressionOptions.resize[0]}
-                    onChange={(e) => handleTextureCompressionOptionChange("resize", [parseInt(e.target.value), parseInt(e.target.value)])}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value);
+                      handleSettingChange({
+                        textureCompressionOptions: {
+                          format: settings.textureCompressionOptions.format,
+                          quality: settings.textureCompressionOptions.quality,
+                          resize: [value, value],
+                        },
+                      });
+                    }}
                   >
                     <option value="256">256 x 256</option>
                     <option value="512">512 x 512</option>
@@ -377,7 +397,12 @@ function App() {
         {/* Resample setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableResample} onChange={(e) => handleSettingChange("enableResample", e.target.checked)} id="resample-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableResample}
+              onChange={(e) => handleSettingChange({ enableResample: e.target.checked })}
+              id="resample-toggle"
+            />
             <label htmlFor="resample-toggle">Resample Animations</label>
           </div>
         </div>
@@ -385,7 +410,12 @@ function App() {
         {/* Sparse setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableSparse} onChange={(e) => handleSettingChange("enableSparse", e.target.checked)} id="sparse-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableSparse}
+              onChange={(e) => handleSettingChange({ enableSparse: e.target.checked })}
+              id="sparse-toggle"
+            />
             <label htmlFor="sparse-toggle">Sparse Accessors</label>
           </div>
 
@@ -401,7 +431,13 @@ function App() {
                     max="0.5"
                     step="0.01"
                     value={settings.sparseOptions.ratio}
-                    onChange={(e) => handleSparseOptionChange("ratio", parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      handleSettingChange({
+                        sparseOptions: {
+                          ratio: parseFloat(e.target.value),
+                        },
+                      })
+                    }
                     className="slider"
                   />
                   <div className="slider-labels">
@@ -417,7 +453,12 @@ function App() {
         {/* Simplify setting group with options */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableSimplify} onChange={(e) => handleSettingChange("enableSimplify", e.target.checked)} id="simplify-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableSimplify}
+              onChange={(e) => handleSettingChange({ enableSimplify: e.target.checked })}
+              id="simplify-toggle"
+            />
             <label htmlFor="simplify-toggle">Simplify Meshes</label>
           </div>
 
@@ -433,7 +474,14 @@ function App() {
                     max="0.95"
                     step="0.05"
                     value={settings.simplifyOptions.ratio}
-                    onChange={(e) => handleSimplifyOptionChange("ratio", parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      handleSettingChange({
+                        simplifyOptions: {
+                          ratio: parseFloat(e.target.value),
+                          error: settings.simplifyOptions.error,
+                        },
+                      })
+                    }
                     className="slider"
                   />
                   <div className="slider-labels">
@@ -452,7 +500,14 @@ function App() {
                     max="0.1"
                     step="0.001"
                     value={settings.simplifyOptions.error}
-                    onChange={(e) => handleSimplifyOptionChange("error", parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      handleSettingChange({
+                        simplifyOptions: {
+                          ratio: settings.simplifyOptions.ratio,
+                          error: parseFloat(e.target.value),
+                        },
+                      })
+                    }
                     className="slider"
                   />
                   <div className="slider-labels">
@@ -468,7 +523,12 @@ function App() {
         {/* Meshopt setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableMeshopt} onChange={(e) => handleSettingChange("enableMeshopt", e.target.checked)} id="meshopt-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableMeshopt}
+              onChange={(e) => handleSettingChange({ enableMeshopt: e.target.checked })}
+              id="meshopt-toggle"
+            />
             <label htmlFor="meshopt-toggle">Meshopt Compression</label>
           </div>
 
@@ -476,7 +536,11 @@ function App() {
             <div className="setting-options">
               <div className="setting-option">
                 <label htmlFor="meshopt-level">Compression Level:</label>
-                <select id="meshopt-level" value={settings.meshoptOptions.level} onChange={(e) => handleMeshoptOptionChange("level", e.target.value)}>
+                <select
+                  id="meshopt-level"
+                  value={settings.meshoptOptions.level}
+                  onChange={(e) => handleSettingChange({ meshoptOptions: { level: e.target.value as never } })}
+                >
                   <option value="high">High (Slower)</option>
                   <option value="medium">Medium (Default)</option>
                   <option value="low">Low (Faster)</option>
@@ -489,7 +553,12 @@ function App() {
         {/* Quantize setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableQuantize} onChange={(e) => handleSettingChange("enableQuantize", e.target.checked)} id="quantize-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableQuantize}
+              onChange={(e) => handleSettingChange({ enableQuantize: e.target.checked })}
+              id="quantize-toggle"
+            />
             <label htmlFor="quantize-toggle">Quantize Attributes</label>
           </div>
         </div>
@@ -497,7 +566,12 @@ function App() {
         {/* Instancing setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableInstance} onChange={(e) => handleSettingChange("enableInstance", e.target.checked)} id="instance-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableInstance}
+              onChange={(e) => handleSettingChange({ enableInstance: e.target.checked })}
+              id="instance-toggle"
+            />
             <label htmlFor="instance-toggle">Create Instances</label>
           </div>
 
@@ -513,7 +587,7 @@ function App() {
                     max="20"
                     step="1"
                     value={settings.instanceOptions.min}
-                    onChange={(e) => handleInstanceOptionChange("min", parseInt(e.target.value))}
+                    onChange={(e) => handleSettingChange({ instanceOptions: { min: parseInt(e.target.value) } })}
                     className="slider"
                   />
                   <div className="slider-labels">
@@ -529,7 +603,12 @@ function App() {
         {/* Center setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableCenter} onChange={(e) => handleSettingChange("enableCenter", e.target.checked)} id="center-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableCenter}
+              onChange={(e) => handleSettingChange({ enableCenter: e.target.checked })}
+              id="center-toggle"
+            />
             <label htmlFor="center-toggle">Center Model</label>
           </div>
 
@@ -537,7 +616,11 @@ function App() {
             <div className="setting-options">
               <div className="setting-option">
                 <label htmlFor="center-pivot">Pivot Point:</label>
-                <select id="center-pivot" value={settings.centerOptions.pivot} onChange={(e) => handleCenterOptionChange("pivot", e.target.value)}>
+                <select
+                  id="center-pivot"
+                  value={settings.centerOptions.pivot}
+                  onChange={(e) => handleSettingChange({ centerOptions: { pivot: e.target.value as never } })}
+                >
                   <option value="center">Center (Default)</option>
                   <option value="bottom">Bottom</option>
                   <option value="origin">Origin (0,0,0)</option>
@@ -550,7 +633,12 @@ function App() {
         {/* Palette setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enablePalette} onChange={(e) => handleSettingChange("enablePalette", e.target.checked)} id="palette-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enablePalette}
+              onChange={(e) => handleSettingChange({ enablePalette: e.target.checked })}
+              id="palette-toggle"
+            />
             <label htmlFor="palette-toggle">Create Color Palettes</label>
           </div>
 
@@ -566,7 +654,7 @@ function App() {
                     max="64"
                     step="1"
                     value={settings.paletteOptions.min}
-                    onChange={(e) => handlePaletteOptionChange("min", parseInt(e.target.value))}
+                    onChange={(e) => handleSettingChange({ paletteOptions: { min: parseInt(e.target.value) } })}
                     className="slider"
                   />
                   <div className="slider-labels">
@@ -582,7 +670,12 @@ function App() {
         {/* Add Normals setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableNormals} onChange={(e) => handleSettingChange("enableNormals", e.target.checked)} id="normals-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableNormals}
+              onChange={(e) => handleSettingChange({ enableNormals: e.target.checked })}
+              id="normals-toggle"
+            />
             <label htmlFor="normals-toggle">Compute Normals</label>
           </div>
 
@@ -592,7 +685,7 @@ function App() {
                 <input
                   type="checkbox"
                   checked={settings.normalsOptions.overwrite}
-                  onChange={(e) => handleNormalsOptionChange("overwrite", e.target.checked)}
+                  onChange={(e) => handleSettingChange({ normalsOptions: { overwrite: e.target.checked } })}
                   id="normals-overwrite"
                 />
                 <label htmlFor="normals-overwrite">Overwrite Existing</label>
@@ -604,7 +697,12 @@ function App() {
         {/* Metal-Rough setting group */}
         <div className="setting-group">
           <div className="setting-group-title">
-            <input type="checkbox" checked={settings.enableMetalRough} onChange={(e) => handleSettingChange("enableMetalRough", e.target.checked)} id="metal-rough-toggle" />
+            <input
+              type="checkbox"
+              checked={settings.enableMetalRough}
+              onChange={(e) => handleSettingChange({ enableMetalRough: e.target.checked })}
+              id="metal-rough-toggle"
+            />
             <label htmlFor="metal-rough-toggle">Convert to Metal-Rough</label>
           </div>
         </div>
@@ -614,7 +712,7 @@ function App() {
             <input
               type="checkbox"
               checked={settings.enableMaterialsOptions}
-              onChange={(e) => handleSettingChange("enableMaterialsOptions", e.target.checked)}
+              onChange={(e) => handleSettingChange({ enableMaterialsOptions: e.target.checked })}
               id="materials-options-toggle"
             />
             <label htmlFor="materials-options-toggle">Materials Options</label>
@@ -626,7 +724,7 @@ function App() {
                 <input
                   type="checkbox"
                   checked={settings.materialsOptions.doubleSided}
-                  onChange={(e) => handleMaterialsOptionChange("doubleSided", e.target.checked)}
+                  onChange={(e) => handleSettingChange({ materialsOptions: { doubleSided: e.target.checked } })}
                   id="materials-doubleSided-toggle"
                 />
                 <label htmlFor="materials-doubleSided-toggle">doubleSided</label>
@@ -637,7 +735,7 @@ function App() {
       </div>
 
       <div className="app-container with-settings">
-        <FileUploader settings={settings} themeDark={themeDark} />
+        <FileUploader settings={settings} />
       </div>
 
       <footer className="app-footer">

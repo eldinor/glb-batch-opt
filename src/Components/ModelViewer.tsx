@@ -173,8 +173,7 @@ export default function ModelViewer({ modelUrl, themeDark }: ModelViewerProps) {
       max = BABYLON.Vector3.Maximize(max, meshMax);
     }
 
-    const boundingInfo = new BABYLON.BoundingInfo(min, max);
-    return boundingInfo;
+    return new BABYLON.BoundingInfo(min, max);
   };
 
   return (

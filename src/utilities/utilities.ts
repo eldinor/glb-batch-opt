@@ -1,9 +1,9 @@
-/** returns themeDark boolean */
-export function lazyToggleTheme(): boolean {
-  const htmlElement = document.documentElement;
-  const themeDark = htmlElement.style.filter !== "invert(1)";
-  htmlElement.style.filter = themeDark ? "invert(1)" : "invert(0)";
-  return themeDark;
+export function lazySetTheme(darkMode: boolean) {
+  document.documentElement.style.filter = darkMode ? "invert(1)" : "invert(0)";
+}
+
+export function userPrefersDarkMode(): boolean {
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
 /** Type predicate to check if a value is an array of exactly two numbers */
