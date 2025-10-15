@@ -3,7 +3,10 @@ export function lazySetTheme(darkMode: boolean) {
 }
 
 export function userPrefersDarkMode(): boolean {
-  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  if (typeof window === "undefined" || !window.matchMedia) {
+    return false; // Default fallback
+  }
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
 /** Type predicate to check if a value is an array of exactly two numbers */
