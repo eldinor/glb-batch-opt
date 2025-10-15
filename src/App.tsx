@@ -58,6 +58,15 @@ function App() {
   return (
     <>
       <header className="app-header">
+        <div className="logo-area">
+          <img
+            src="/2Asset%201500.svg"
+            alt="Icon"
+            height={50}
+            style={{ filter: settings.userSettings.darkMode ? "invert(1)" : "invert(0)" }}
+          />
+          <h2>GLB Batch Optimizer</h2>
+        </div>
         <div className="header-controls">
           <div className="user-settings">
             <button onClick={() => setShowUserSettings((prev) => !prev)}>User Settings</button>

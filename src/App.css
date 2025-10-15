@@ -80,15 +80,23 @@ button.danger:disabled {
 /* Header styles */
 .app-header {
   display: flex;
-  justify-content: flex-end; /* Changed to flex-end since we don't have a title */
+  justify-content: space-between;
   align-items: center;
   background-color: #f0f0f0;
-  padding: 0 20px;
   height: 60px;
   width: 100%;
   border-bottom: 1px solid #ddd;
   box-sizing: border-box;
   padding-right: 320px; /* Add extra padding on the right to account for settings panel */
+  padding-left: 40px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.logo-area {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .header-controls {
