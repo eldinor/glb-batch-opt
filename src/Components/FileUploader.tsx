@@ -38,10 +38,15 @@ interface FileProgress {
 
 interface FileUploaderProps {
   settings: OptimizationSettings;
+  onStatsChange?: (stats: {
+    totalFiles: number;
+    totalOriginalBytes: number;
+    totalOptimizedBytes: number;
+  }) => void;
 }
 
 export default forwardRef<{ reprocessAll: () => Promise<void> }, FileUploaderProps>(function FileUploader(
-  { settings }: FileUploaderProps,
+  { settings, onStatsChange }: FileUploaderProps,
   ref
 ) {
   const [files, setFiles] = useState<FileProgress[]>([]);
@@ -61,6 +66,14 @@ export default forwardRef<{ reprocessAll: () => Promise<void> }, FileUploaderPro
       }
     }
   }, [files, selectedModel]);
+
+  // Emit aggregate stats for Debug panel consumers
+  useEffect(() => {
+    const totalFiles = files.length;
+    const totalOriginalBytes = files.reduce((acc, f) => acc + (f.originalSize ?? 0), 0);
+    const totalOptimizedBytes = files.reduce((acc, f) => acc + (f.optimizedSize ?? 0), 0);
+    onStatsChange?.({ totalFiles, totalOriginalBytes, totalOptimizedBytes });
+  }, [files, onStatsChange]);
 
   const processFiles = async (selectedFiles: File[]) => {
     // Filter only .glb files

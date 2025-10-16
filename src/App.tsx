@@ -23,6 +23,7 @@ function App() {
 
   const [showUserSettings, setShowUserSettings] = useState(false);
   const uploaderRef = useRef<{ reprocessAll: () => Promise<void> } | null>(null);
+  const [debugStats, setDebugStats] = useState({ totalFiles: 0, totalOriginalBytes: 0, totalOptimizedBytes: 0 });
 
   /* componentDidMount executed once after render (must have empty array dependencies) */
   useEffect(() => {
@@ -87,6 +88,7 @@ function App() {
                           maxFileNameLength: settings.userSettings.maxFileNameLength,
                           shortenFileNames: settings.userSettings.shortenFileNames,
                           darkMode: settings.userSettings.darkMode,
+                          showDebugPanel: settings.userSettings.showDebugPanel,
                         },
                       })
                     }
@@ -105,6 +107,7 @@ function App() {
                           maxFileNameLength: settings.userSettings.maxFileNameLength,
                           shortenFileNames: e.target.checked,
                           darkMode: settings.userSettings.darkMode,
+                          showDebugPanel: settings.userSettings.showDebugPanel,
                         },
                       })
                     }
@@ -125,11 +128,32 @@ function App() {
                           maxFileNameLength: settings.userSettings.maxFileNameLength,
                           shortenFileNames: settings.userSettings.shortenFileNames,
                           darkMode: e.target.checked,
+                          showDebugPanel: settings.userSettings.showDebugPanel,
                         },
                       });
                     }}
                   />
                   <label htmlFor="dark-theme">Dark Theme</label>
+                </div>
+
+                <div className="setting-field">
+                  <input
+                    type="checkbox"
+                    id="show-debug"
+                    checked={settings.userSettings.showDebugPanel}
+                    onChange={(e) =>
+                      handleSettingChange({
+                        userSettings: {
+                          fileNameSuffix: settings.userSettings.fileNameSuffix,
+                          maxFileNameLength: settings.userSettings.maxFileNameLength,
+                          shortenFileNames: settings.userSettings.shortenFileNames,
+                          darkMode: settings.userSettings.darkMode,
+                          showDebugPanel: e.target.checked,
+                        },
+                      })
+                    }
+                  />
+                  <label htmlFor="show-debug">Show Debug Panel</label>
                 </div>
 
                 {settings.userSettings.shortenFileNames && (
@@ -148,6 +172,7 @@ function App() {
                             maxFileNameLength: parseInt(e.target.value),
                             shortenFileNames: settings.userSettings.shortenFileNames,
                             darkMode: settings.userSettings.darkMode,
+                            showDebugPanel: settings.userSettings.showDebugPanel,
                           },
                         })
                       }
@@ -771,8 +796,27 @@ function App() {
       </div>
 
       <div className="app-container with-settings">
-        <FileUploader ref={uploaderRef} settings={settings} />
+        <FileUploader ref={uploaderRef} settings={settings} onStatsChange={setDebugStats} />
       </div>
+
+      {settings.userSettings.showDebugPanel && (
+        <div className="debug-panel">
+          <div className="debug-item"><strong>Total files:</strong> {debugStats.totalFiles}</div>
+          <div className="debug-item">
+            <strong>Total original size:</strong> {(debugStats.totalOriginalBytes / (1024 * 1024)).toFixed(2)} MB
+          </div>
+          <div className="debug-item">
+            <strong>Total optimized size:</strong> {(debugStats.totalOptimizedBytes / (1024 * 1024)).toFixed(2)} MB
+          </div>
+          <div className="debug-item">
+            <strong>Total reduction:</strong> {
+              debugStats.totalOriginalBytes > 0
+                ? (((debugStats.totalOriginalBytes - debugStats.totalOptimizedBytes) / debugStats.totalOriginalBytes) * 100).toFixed(1)
+                : '0.0'
+            }%
+          </div>
+        </div>
+      )}
 
       <footer className="app-footer">
         <p>
