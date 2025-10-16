@@ -19,7 +19,7 @@ import {
   metalRough,
 } from "@gltf-transform/functions";
 import { MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier } from "meshoptimizer";
-import { useState, useRef, type ChangeEvent, useEffect } from "react";
+import { useState, useRef, type ChangeEvent, useEffect, forwardRef, useImperativeHandle } from "react";
 import JSZip from "jszip";
 import ModelViewer from "./ModelViewer.tsx";
 import type { DragEvent, MouseEvent } from "react";
@@ -33,13 +33,17 @@ interface FileProgress {
   url?: string;
   originalSize?: number; // Size in bytes
   optimizedSize?: number; // Size in bytes
+  originalData?: Uint8Array;
 }
 
 interface FileUploaderProps {
   settings: OptimizationSettings;
 }
 
-export default function FileUploader({ settings }: FileUploaderProps) {
+export default forwardRef<{ reprocessAll: () => Promise<void> }, FileUploaderProps>(function FileUploader(
+  { settings }: FileUploaderProps,
+  ref
+) {
   const [files, setFiles] = useState<FileProgress[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -93,9 +97,18 @@ export default function FileUploader({ settings }: FileUploaderProps) {
 
         // Read file as array buffer
         const fileData = await readFileAsArrayBuffer(file);
+        const originalData = new Uint8Array(fileData);
+        // Save original data for reprocessing
+        setFiles((prev) => {
+          const updated = [...prev];
+          if (updated[index]) {
+            updated[index] = { ...updated[index], originalData };
+          }
+          return updated;
+        });
 
         // Process the GLB file with optimization settings
-        const result = await processGLB(new Uint8Array(fileData));
+        const result = await processGLB(originalData);
 
         // Update with result
         setFiles((prev) => {
@@ -382,6 +395,68 @@ export default function FileUploader({ settings }: FileUploaderProps) {
     return { url: assetUrl, size: glb.byteLength };
   };
 
+  const reprocessAll = async () => {
+    if (files.length === 0) return;
+    setIsProcessing(true);
+
+    const selectedIndex = selectedModel ? files.findIndex((f) => f.url === selectedModel) : -1;
+
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      if (!f.originalData) continue;
+
+      // Update status to processing
+      setFiles((prev) => {
+        const updated = [...prev];
+        if (updated[i]) {
+          updated[i] = { ...updated[i], status: "processing" };
+        }
+        return updated;
+      });
+
+      // Revoke previous object URL to free memory
+      if (f.url) {
+        try {
+          URL.revokeObjectURL(f.url);
+        } catch {}
+      }
+
+      try {
+        const result = await processGLB(f.originalData);
+
+        setFiles((prev) => {
+          const updated = [...prev];
+          if (updated[i]) {
+            updated[i] = {
+              ...updated[i],
+              status: "completed",
+              url: result.url,
+              optimizedSize: result.size,
+            };
+          }
+          return updated;
+        });
+
+        if (i === selectedIndex || (selectedIndex === -1 && i === 0)) {
+          setSelectedModel(result.url);
+        }
+      } catch (err) {
+        console.error("Error reprocessing file:", err);
+        setFiles((prev) => {
+          const updated = [...prev];
+          if (updated[i]) {
+            updated[i] = { ...updated[i], status: "error", error: String(err) };
+          }
+          return updated;
+        });
+      }
+    }
+
+    setIsProcessing(false);
+  };
+
+  useImperativeHandle(ref, () => ({ reprocessAll }));
+
   const handleModelSelect = (url: string) => {
     setSelectedModel(url);
   };
@@ -451,7 +526,7 @@ export default function FileUploader({ settings }: FileUploaderProps) {
   };
 
   const formatFileName = (fileName: string): string => {
-    //@ts-ignore
+   
     const { fileNameSuffix, shortenFileNames, maxFileNameLength } = settings.userSettings;
 
     // Remove .glb extension
@@ -645,4 +720,4 @@ export default function FileUploader({ settings }: FileUploaderProps) {
       </div>
     </div>
   );
-}
+});

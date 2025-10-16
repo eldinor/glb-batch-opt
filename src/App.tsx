@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import FileUploader from "./Components/FileUploader.tsx";
 import { lazySetTheme, userPrefersDarkMode } from "./utilities/utilities.ts";
@@ -22,6 +22,7 @@ function App() {
   });
 
   const [showUserSettings, setShowUserSettings] = useState(false);
+  const uploaderRef = useRef<{ reprocessAll: () => Promise<void> } | null>(null);
 
   /* componentDidMount executed once after render (must have empty array dependencies) */
   useEffect(() => {
@@ -162,6 +163,7 @@ function App() {
               </div>
             )}
           </div>
+<button className="reload" onClick={() => uploaderRef.current?.reprocessAll()}>RELOAD</button>
         </div>
       </header>
 
@@ -744,7 +746,7 @@ function App() {
       </div>
 
       <div className="app-container with-settings">
-        <FileUploader settings={settings} />
+        <FileUploader ref={uploaderRef} settings={settings} />
       </div>
 
       <footer className="app-footer">
