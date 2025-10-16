@@ -643,7 +643,7 @@ button.danger:disabled {
 .debug-panel {
   box-sizing: border-box;
   margin: 0 20px 10px 40px;
-  padding: 10px 12px;
+  padding: 10px 24px;
   background: #fafafa;
   border: 1px solid #e5e5e5;
   border-radius: 6px;
