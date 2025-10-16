@@ -637,5 +637,28 @@ button.danger:disabled {
 
 .app-container.with-settings {
   flex: 1;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+}
+
+.debug-panel {
+  box-sizing: border-box;
+  margin: 0 20px 10px 40px;
+  padding: 10px 24px;
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  text-align: left;
+}
+
+.debug-item {
+  color: #333;
+  font-size: 0.9rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .debug-panel { background: #1a1a1a; border-color: #2a2a2a; }
+  .debug-item { color: #ddd; }
 }

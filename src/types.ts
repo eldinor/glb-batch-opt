@@ -64,6 +64,7 @@ export interface OptimizationSettings extends Setting {
     maxFileNameLength: number;
     shortenFileNames: boolean;
     darkMode: boolean;
+    showDebugPanel: boolean;
   };
 }
 

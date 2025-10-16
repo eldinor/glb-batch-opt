@@ -23,6 +23,8 @@ function App() {
 
   const [showUserSettings, setShowUserSettings] = useState(false);
   const uploaderRef = useRef<{ reprocessAll: () => Promise<void> } | null>(null);
+  const [debugStats, setDebugStats] = useState({ totalFiles: 0, totalOriginalBytes: 0, totalOptimizedBytes: 0 });
+  const [usedHeapBytes, setUsedHeapBytes] = useState(0);
 
   /* componentDidMount executed once after render (must have empty array dependencies) */
   useEffect(() => {
@@ -30,6 +32,23 @@ function App() {
       lazySetTheme(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Poll JS heap usage for Debug panel (Chrome-only API; guarded)
+  useEffect(() => {
+    const update = () => {
+      try {
+        const perf: any = (window as any).performance;
+        const mem =
+          perf && perf.memory && typeof perf.memory.usedJSHeapSize === "number" ? perf.memory.usedJSHeapSize : 0;
+        setUsedHeapBytes(mem);
+      } catch {
+        // no-op
+      }
+    };
+    update();
+    const id = window.setInterval(update, 1000);
+    return () => window.clearInterval(id);
   }, []);
 
   // Save settings to localStorage whenever they change
@@ -87,6 +106,7 @@ function App() {
                           maxFileNameLength: settings.userSettings.maxFileNameLength,
                           shortenFileNames: settings.userSettings.shortenFileNames,
                           darkMode: settings.userSettings.darkMode,
+                          showDebugPanel: settings.userSettings.showDebugPanel,
                         },
                       })
                     }
@@ -105,6 +125,7 @@ function App() {
                           maxFileNameLength: settings.userSettings.maxFileNameLength,
                           shortenFileNames: e.target.checked,
                           darkMode: settings.userSettings.darkMode,
+                          showDebugPanel: settings.userSettings.showDebugPanel,
                         },
                       })
                     }
@@ -125,11 +146,32 @@ function App() {
                           maxFileNameLength: settings.userSettings.maxFileNameLength,
                           shortenFileNames: settings.userSettings.shortenFileNames,
                           darkMode: e.target.checked,
+                          showDebugPanel: settings.userSettings.showDebugPanel,
                         },
                       });
                     }}
                   />
                   <label htmlFor="dark-theme">Dark Theme</label>
+                </div>
+
+                <div className="setting-field">
+                  <input
+                    type="checkbox"
+                    id="show-debug"
+                    checked={settings.userSettings.showDebugPanel}
+                    onChange={(e) =>
+                      handleSettingChange({
+                        userSettings: {
+                          fileNameSuffix: settings.userSettings.fileNameSuffix,
+                          maxFileNameLength: settings.userSettings.maxFileNameLength,
+                          shortenFileNames: settings.userSettings.shortenFileNames,
+                          darkMode: settings.userSettings.darkMode,
+                          showDebugPanel: e.target.checked,
+                        },
+                      })
+                    }
+                  />
+                  <label htmlFor="show-debug">Show Debug Panel</label>
                 </div>
 
                 {settings.userSettings.shortenFileNames && (
@@ -148,6 +190,7 @@ function App() {
                             maxFileNameLength: parseInt(e.target.value),
                             shortenFileNames: settings.userSettings.shortenFileNames,
                             darkMode: settings.userSettings.darkMode,
+                            showDebugPanel: settings.userSettings.showDebugPanel,
                           },
                         })
                       }
@@ -163,32 +206,34 @@ function App() {
               </div>
             )}
           </div>
-<button className="reload" onClick={() => uploaderRef.current?.reprocessAll()}>RELOAD</button>
-<button
-  className="icon-button help-btn"
-  aria-label="Help"
-  title="Help"
-  onClick={() => window.open('/help.html', '_blank', 'noopener,noreferrer')}
-  style={{
-    position: 'fixed',
-    top: 12,
-    right: 12,
-    zIndex: 1001,
-    width: 36,
-    height: 36,
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '50%',
-    backgroundColor: '#f0f0f0',
-    border: '1px solid #ddd',
-    padding: 0,
-  }}
->
-  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm.1 15.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM12 6.5c2.04 0 3.5 1.25 3.5 3.02 0 1.22-.62 2.04-1.64 2.66-.9.54-1.21.9-1.21 1.57v.25h-1.7v-.32c0-1.32.65-2.04 1.65-2.62.86-.5 1.2-.9 1.2-1.56 0-.8-.64-1.34-1.8-1.34-1 0-1.78.42-2.2 1.22l-1.5-.9C8.02 7.28 9.78 6.5 12 6.5z"></path>
-  </svg>
-</button>
+          <button className="reload" onClick={() => uploaderRef.current?.reprocessAll()}>
+            RELOAD
+          </button>
+          <button
+            className="icon-button help-btn"
+            aria-label="Help"
+            title="Help"
+            onClick={() => window.open("/help.html", "_blank", "noopener,noreferrer")}
+            style={{
+              position: "fixed",
+              top: 12,
+              right: 12,
+              zIndex: 1001,
+              width: 36,
+              height: 36,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "50%",
+              backgroundColor: "#f0f0f0",
+              border: "1px solid #ddd",
+              padding: 0,
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm.1 15.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM12 6.5c2.04 0 3.5 1.25 3.5 3.02 0 1.22-.62 2.04-1.64 2.66-.9.54-1.21.9-1.21 1.57v.25h-1.7v-.32c0-1.32.65-2.04 1.65-2.62.86-.5 1.2-.9 1.2-1.56 0-.8-.64-1.34-1.8-1.34-1 0-1.78.42-2.2 1.22l-1.5-.9C8.02 7.28 9.78 6.5 12 6.5z"></path>
+            </svg>
+          </button>
         </div>
       </header>
 
@@ -771,8 +816,37 @@ function App() {
       </div>
 
       <div className="app-container with-settings">
-        <FileUploader ref={uploaderRef} settings={settings} />
+        <FileUploader ref={uploaderRef} settings={settings} onStatsChange={setDebugStats} />
       </div>
+
+      {settings.userSettings.showDebugPanel && (
+        <div className="debug-panel">
+          <div className="debug-item">
+            Total files: <strong>{debugStats.totalFiles}</strong>
+          </div>
+          <div className="debug-item">
+            Total original size: <strong> {(debugStats.totalOriginalBytes / (1024 * 1024)).toFixed(2)} MB</strong>
+          </div>
+          <div className="debug-item">
+            Total optimized size: <strong>{(debugStats.totalOptimizedBytes / (1024 * 1024)).toFixed(2)} MB</strong>{" "}
+          </div>
+          <div className="debug-item">
+            Total reduction:{" "}
+            <strong>
+              {debugStats.totalOriginalBytes > 0
+                ? (
+                    ((debugStats.totalOriginalBytes - debugStats.totalOptimizedBytes) / debugStats.totalOriginalBytes) *
+                    100
+                  ).toFixed(1)
+                : "0.0"}
+              %
+            </strong>
+          </div>
+          <div className="debug-item" style={{ marginLeft: "auto", marginRight: "320px" }}>
+            Memory: <strong>{(usedHeapBytes / (1024 * 1024)).toFixed(2)} MB</strong>{" "}
+          </div>
+        </div>
+      )}
 
       <footer className="app-footer">
         <p>

@@ -61,7 +61,8 @@ export const defaultSettings: OptimizationSettings = {
     fileNameSuffix: "_optimized",
     maxFileNameLength: 20,
     shortenFileNames: false,
-    darkMode: userPrefersDarkMode()
+    darkMode: userPrefersDarkMode(),
+    showDebugPanel: false,
   },
 };
 // Prevent property mutation
