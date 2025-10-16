@@ -164,6 +164,31 @@ function App() {
             )}
           </div>
 <button className="reload" onClick={() => uploaderRef.current?.reprocessAll()}>RELOAD</button>
+<button
+  className="icon-button help-btn"
+  aria-label="Help"
+  title="Help"
+  onClick={() => window.open('/help.html', '_blank', 'noopener,noreferrer')}
+  style={{
+    position: 'fixed',
+    top: 12,
+    right: 12,
+    zIndex: 1001,
+    width: 36,
+    height: 36,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '50%',
+    backgroundColor: '#f0f0f0',
+    border: '1px solid #ddd',
+    padding: 0,
+  }}
+>
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm.1 15.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM12 6.5c2.04 0 3.5 1.25 3.5 3.02 0 1.22-.62 2.04-1.64 2.66-.9.54-1.21.9-1.21 1.57v.25h-1.7v-.32c0-1.32.65-2.04 1.65-2.62.86-.5 1.2-.9 1.2-1.56 0-.8-.64-1.34-1.8-1.34-1 0-1.78.42-2.2 1.22l-1.5-.9C8.02 7.28 9.78 6.5 12 6.5z"></path>
+  </svg>
+</button>
         </div>
       </header>
 

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GLB Batch Optimizer — Help</title>
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('optimizationSettings');
+          var dark;
+          if (saved) {
+            var s = JSON.parse(saved);
+            dark = !!(s && s.userSettings && s.userSettings.darkMode);
+          }
+          if (typeof dark === 'undefined') {
+            dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          }
+          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+        } catch (e) {
+          // Fallback: keep default light
+        }
+      })();
+    </script>
+    <style>
+      html, body { margin: 0; padding: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+      .container { max-width: 900px; margin: 0 auto; padding: 24px; }
+      h1 { margin-top: 0; }
+      h1, h2, h3 { color: #222; }
+      body { background: #ffffff; color: #222; }
+      a { color: #646cff; }
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #e5e5e5; position: sticky; top: 0; backdrop-filter: blur(6px); background: rgba(255, 255, 255, 0.8); }
+      .topbar a { text-decoration: none; font-weight: 600; }
+      .content h2 { margin-top: 1.5em; }
+      ul { line-height: 1.6; }
+      code, pre { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; }
+      .muted { color: #666; }
+
+      html[data-theme='dark'] body { background: #111; color: #ddd; }
+      html[data-theme='dark'] h1, html[data-theme='dark'] h2, html[data-theme='dark'] h3 { color: #fff; }
+      html[data-theme='dark'] a { color: #9aa9ff; }
+      html[data-theme='dark'] code, html[data-theme='dark'] pre { background: rgba(255,255,255,0.07); }
+      html[data-theme='dark'] .topbar { border-bottom: 1px solid #222; background: rgba(17, 17, 17, 0.7); }
+      html[data-theme='dark'] .muted { color: #aaa; }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="muted">GLB Batch Optimizer — Help</div>
+      <!--
+      <a href="/" target="_self" rel="noopener">Back to App</a>
+      -->
+    </div>
+    <div class="container content">
+      <h1>GLB Batch Optimizer — Quick Help</h1>
+
+      <h2>What this app does</h2>
+      <p>Optimize one or more .glb files in the browser using Babylon.js, glTF-Transform and other tools under the hood of the GLB Batch Optimizer. You can configure many optimization passes (texture compression, mesh simplification, pruning, etc.), preview a selected result, and download the optimized files (individually or as a ZIP).</p>
+
+      <h2>Upload models</h2>
+      <ul>
+        <li>Drag &amp; drop .glb files into the left uploader, or click "Select Files" and choose .glb files.</li>
+        <li>Only .glb files are accepted.</li>
+      </ul>
+
+      <h2>Configure optimization</h2>
+      <p>Use the right sidebar to toggle/adjust optimization steps. Common options:</p>
+      <ul>
+        <li>Texture Compression: Choose format (WebP/JPEG/PNG), set quality (Auto/Manual), and optional resize.</li>
+        <li>Deduplication, Flatten, Join, Weld, Quantize, Resample, Instance, Sparse, Palette, Normals, Metal-Rough, Materials options, Centering, Meshopt, Simplify.</li>
+        <li>Changes are saved to localStorage automatically.</li>
+      </ul>
+
+      <h2>User settings (header → User Settings)</h2>
+      <ul>
+        <li>File suffix: Add a suffix to optimized filenames.</li>
+        <li>Shorten file names: Truncate long names to a maximum length.</li>
+        <li>Dark Theme: Toggle the dark theme.</li>
+      </ul>
+
+      <h2>Processing &amp; preview</h2>
+      <ul>
+        <li>Each file shows status: Pending → Processing → Completed (or Error).</li>
+        <li>For completed items, original/optimized sizes and reduction are shown.</li>
+        <li>Click a completed file to preview it in the 3D viewer.</li>
+      </ul>
+
+      <h2>Re-run optimization (Reload)</h2>
+      <ul>
+        <li>Use the "Reload" button in the header to re-run optimization on all uploaded files using:
+          <ul>
+            <li>The same original GLB data (no need to re-upload)</li>
+            <li>The current settings in the right sidebar</li>
+          </ul>
+        </li>
+        <li>The app updates each file’s optimized output and keeps your current selection when possible.</li>
+      </ul>
+
+      <h2>Download results</h2>
+      <ul>
+        <li>Single file: Click the ↓ button next to a completed file to download its optimized GLB. The filename respects your File Suffix and shortening preferences.</li>
+        <li>All files: Use "Download as Zip" (in the Files panel) when at least one file is completed.</li>
+      </ul>
+
+      <h2>Managing files</h2>
+      <ul>
+        <li>Remove a single file with the × button on the file item.</li>
+        <li>Clear all files with the "Clear All" button in the Files list header.</li>
+      </ul>
+
+      <h2>Notes &amp; tips</h2>
+      <ul>
+        <li>All processing is done locally in your browser; models are not uploaded to a server.</li>
+        <li>Large models and heavy options (e.g., high texture sizes, simplify) may take time to process.</li>
+        <li>Reload relies on the original data stored in memory for this session. Refreshing the page clears it, so you’ll need to re-upload.</li>
+      </ul>
+
+      <h2>Troubleshooting</h2>
+      <ul>
+        <li>If downloads don’t start, ensure your browser allows pop-ups for this page.</li>
+        <li>If the Zip button is disabled, ensure at least one file is completed.</li>
+        <li>Check the browser console for detailed logs/errors.</li>
+      </ul>
+    </div>
+  </body>
+</html>
