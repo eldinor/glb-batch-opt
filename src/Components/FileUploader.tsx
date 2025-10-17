@@ -38,11 +38,7 @@ interface FileProgress {
 
 interface FileUploaderProps {
   settings: OptimizationSettings;
-  onStatsChange?: (stats: {
-    totalFiles: number;
-    totalOriginalBytes: number;
-    totalOptimizedBytes: number;
-  }) => void;
+  onStatsChange?: (stats: { totalFiles: number; totalOriginalBytes: number; totalOptimizedBytes: number }) => void;
 }
 
 export default forwardRef<{ reprocessAll: () => Promise<void> }, FileUploaderProps>(function FileUploader(
@@ -539,7 +535,6 @@ export default forwardRef<{ reprocessAll: () => Promise<void> }, FileUploaderPro
   };
 
   const formatFileName = (fileName: string): string => {
-   
     const { fileNameSuffix, shortenFileNames, maxFileNameLength } = settings.userSettings;
 
     // Remove .glb extension
@@ -727,7 +722,10 @@ export default forwardRef<{ reprocessAll: () => Promise<void> }, FileUploaderPro
           <ModelViewer modelUrl={selectedModel} themeDark={settings.userSettings.darkMode} />
         ) : (
           <div className="empty-viewer">
-            <p>Upload a GLB file to view it here</p>
+
+            <h3> Drag-and-drop multiple GLB files to the left sidebar </h3>
+                    <h3>Download optimized GLB files individually or as a single ZIP archive, with customizable file naming</h3>
+
           </div>
         )}
       </div>

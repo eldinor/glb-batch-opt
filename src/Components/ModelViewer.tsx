@@ -48,12 +48,12 @@ export default function ModelViewer({ modelUrl, themeDark }: ModelViewerProps) {
       camera.wheelDeltaPercentage = 0.01;
       camera.pinchDeltaPercentage = 0.01;
       camera.speed = 0.2;
-      camera.lowerRadiusLimit = 2;
+      camera.lowerRadiusLimit = 1;
       camera.upperRadiusLimit = 50;
       camera.useFramingBehavior = true;
       const framingBehavior = camera.getBehaviorByName("Framing") as BABYLON.FramingBehavior;
       framingBehavior.framingTime = 0;
-      // framingBehavior.elevationReturnTime = -1;
+      framingBehavior.elevationReturnTime = -1;
 
       // Add lights
       const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
