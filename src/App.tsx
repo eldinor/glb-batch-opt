@@ -854,6 +854,10 @@ function App() {
           <a href="https://babylonpress.org" target="_blank" rel="noopener noreferrer">
             BabylonPress.org
           </a>
+          <br />
+          <a href="https://github.com/eldinor/glb-batch-opt" target="_blank" rel="noopener noreferrer">
+            GitHub Source
+          </a>
         </p>
       </footer>
     </>
