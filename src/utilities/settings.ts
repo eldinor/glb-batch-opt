@@ -62,7 +62,7 @@ export const defaultSettings: OptimizationSettings = {
     maxFileNameLength: 20,
     shortenFileNames: false,
     darkMode: userPrefersDarkMode(),
-    showDebugPanel: false,
+    showDebugPanel: true,
   },
 };
 // Prevent property mutation
