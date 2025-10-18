@@ -22,6 +22,7 @@ import { MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier } from "meshoptimizer
 import { useState, useRef, type ChangeEvent, useEffect, forwardRef, useImperativeHandle } from "react";
 import JSZip from "jszip";
 import ModelViewer from "./ModelViewer.tsx";
+import "@babylonjs/viewer";
 import type { DragEvent, MouseEvent } from "react";
 import type { OptimizationSettings } from "../types.ts";
 
@@ -50,6 +51,8 @@ export default forwardRef<{ reprocessAll: () => Promise<void> }, FileUploaderPro
   const [isDragging, setIsDragging] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [isZipping, setIsZipping] = useState(false);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [viewerModelUrl, setViewerModelUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Set the first completed file as selected model when available
@@ -534,6 +537,17 @@ export default forwardRef<{ reprocessAll: () => Promise<void> }, FileUploaderPro
     document.body.removeChild(link);
   };
 
+  const openViewer = (url: string, e: MouseEvent) => {
+    e.stopPropagation();
+    setViewerModelUrl(url);
+    setIsViewerOpen(true);
+  };
+
+  const closeViewer = () => {
+    setIsViewerOpen(false);
+    setViewerModelUrl(null);
+  };
+
   const formatFileName = (fileName: string): string => {
     const { fileNameSuffix, shortenFileNames, maxFileNameLength } = settings.userSettings;
 
@@ -685,7 +699,23 @@ export default forwardRef<{ reprocessAll: () => Promise<void> }, FileUploaderPro
                     <span className="file-status">
                       {file.status === "pending" && "Pending"}
                       {file.status === "processing" && "Processing..."}
-                      {file.status === "completed" && "Completed"}
+                      {file.status === "completed" && (
+                        <>
+                          Completed
+                          {file.url && (
+                            <button
+                              className="view-btn"
+                              onClick={(e) => openViewer(file.url!, e)}
+                              title="Preview in Babylon Viewer"
+                              aria-label="Preview"
+                            >
+                              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                                <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"></path>
+                              </svg>
+                            </button>
+                          )}
+                        </>
+                      )}
                       {file.status === "error" && `Error: ${file.error}`}
                     </span>
                     {file.originalSize && (
@@ -729,6 +759,21 @@ export default forwardRef<{ reprocessAll: () => Promise<void> }, FileUploaderPro
           </div>
         )}
       </div>
+    {isViewerOpen && viewerModelUrl && (
+      <div className="modal-overlay" onClick={closeViewer}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3 style={{ margin: 0 }}>Preview</h3>
+            <button className="modal-close" onClick={closeViewer} aria-label="Close">×</button>
+          </div>
+          <div className="modal-body">
+            {viewerModelUrl && (
+              <ModelViewer modelUrl={viewerModelUrl} themeDark={settings.userSettings.darkMode} />
+            )}
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 });
